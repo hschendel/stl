@@ -1,0 +1,7 @@
+#!/bin/bash
+# reads binary STL from stdin and emits ASCII STL to stdout, 6 digits precision
+A=`/usr/bin/hexdump -v -n 80 -e '"solid " 1/80 "%s"'`
+/bin/echo $A
+/usr/bin/hexdump -v -s 84 -e '"facet normal " 3/4 "%g " "\n" "  outer loop" "\n" "    vertex " 3/4 "%g " "\n" "    vertex " 3/4 "%g " "\n" "    vertex " 3/4 "%g " 1/2 "" "\n" "  endloop" "\n" "endfacet" "\n"'
+/bin/echo "end$A"
+
