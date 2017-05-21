@@ -28,19 +28,20 @@ func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 	us := u * s
 	vs := v * s
 	ws := w * s
-	
-	iuu := 1 - uu
-	ivv := 1 - vv
-	iww := 1 - ww
+
 	ic := 1 - c
-	
+
+	uv_ic := uv * ic
+	uw_ic := uw * ic
+	vw_ic := vw * ic
+
 	mRotate := Mat4{
-		Vec4{uu + iuu * c, uv * ic - ws, uw * ic + vs, 0},
-		Vec4{uv * ic + ws, vv + ivv * c, vw * ic - us, 0},
-		Vec4{uw * ic - vs, vw * ic + us, ww + iww * c, 0},
+		Vec4{uu + (1-uu)*c, uv_ic - ws, uw_ic + vs, 0},
+		Vec4{uv_ic + ws, vv + (1-vv)*c, vw_ic - us, 0},
+		Vec4{uw_ic - vs, vw_ic + us, ww + (1-ww)*c, 0},
 		Vec4{0, 0, 0, 1},
 	}
-	
+
 	mTranslateForward := Mat4{
 		Vec4{1, 0, 0, float64(pos[0])},
 		Vec4{0, 1, 0, float64(pos[1])},
