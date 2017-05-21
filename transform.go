@@ -7,33 +7,40 @@ import (
 )
 
 // Calculates a 4x4 rotation matrix for a rotation of angle in radians
-// around a rotation axis defined by a point on it (pos) and its direction (dir).
-// The result is written into *rotationMatrix.
+// around a axis defined by dir.
+// The returns a rotation matrix.
 func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 	dirN := dir.unitVec()
-	sinA := math.Sin(angle)
-	sinAd0 := sinA * float64(dirN[0])
-	sinAd1 := sinA * float64(dirN[1])
-	sinAd2 := sinA * float64(dirN[2])
-	cosA := math.Cos(angle)
-	icosA := 1 - cosA
-	icosAd0 := icosA * float64(dirN[0])
-	icosAd00 := icosAd0 * float64(dirN[0])
-	icosAd01 := icosAd0 * float64(dirN[1])
-	icosAd02 := icosAd0 * float64(dirN[2])
-	icosAd1 := icosA * float64(dirN[1])
-	icosAd11 := icosAd1 * float64(dirN[1])
-	icosAd12 := icosAd1 * float64(dirN[2])
-	icosAd2 := icosA * float64(dirN[2])
-	icosAd22 := icosAd2 * float64(dirN[2])
 
+	s := math.Sin(angle)
+	c := math.Cos(angle)
+
+	u := float64(dirN[0])
+	v := float64(dirN[1])
+	w := float64(dirN[2])
+
+	uu := u * u
+	uv := u * v
+	uw := u * w
+	vv := v * v
+	vw := v * w
+	ww := w * w
+	us := u * s
+	vs := v * s
+	ws := w * s
+	
+	iuu := 1 - uu
+	ivv := 1 - vv
+	iww := 1 - ww
+	ic := 1 - c
+	
 	mRotate := Mat4{
-		Vec4{icosAd00 + cosA, icosAd01 + sinAd2, icosAd02 + sinAd1, 0},
-		Vec4{icosAd01 + sinAd2, icosAd11 + cosA, icosAd12 - sinAd0, 0},
-		Vec4{icosAd02 - sinAd1, icosAd12 + sinAd0, icosAd22 + cosA, 0},
+		Vec4{uu + iuu * c, uv * ic - ws, uw * ic + vs, 0},
+		Vec4{uv * ic + ws, vv + ivv * c, vw * ic - us, 0},
+		Vec4{uw * ic - vs, vw * ic + us, ww + iww * c, 0},
 		Vec4{0, 0, 0, 1},
 	}
-
+	
 	mTranslateForward := Mat4{
 		Vec4{1, 0, 0, float64(pos[0])},
 		Vec4{0, 1, 0, float64(pos[1])},
