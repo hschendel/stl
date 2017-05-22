@@ -11,26 +11,34 @@ import (
 // The result is written into *rotationMatrix.
 func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 	dirN := dir.unitVec()
-	sinA := math.Sin(angle)
-	sinAd0 := sinA * float64(dirN[0])
-	sinAd1 := sinA * float64(dirN[1])
-	sinAd2 := sinA * float64(dirN[2])
-	cosA := math.Cos(angle)
-	icosA := 1 - cosA
-	icosAd0 := icosA * float64(dirN[0])
-	icosAd00 := icosAd0 * float64(dirN[0])
-	icosAd01 := icosAd0 * float64(dirN[1])
-	icosAd02 := icosAd0 * float64(dirN[2])
-	icosAd1 := icosA * float64(dirN[1])
-	icosAd11 := icosAd1 * float64(dirN[1])
-	icosAd12 := icosAd1 * float64(dirN[2])
-	icosAd2 := icosA * float64(dirN[2])
-	icosAd22 := icosAd2 * float64(dirN[2])
+
+	s := math.Sin(angle)
+	c := math.Cos(angle)
+
+	u := float64(dirN[0])
+	v := float64(dirN[1])
+	w := float64(dirN[2])
+
+	uu := u * u
+	uv := u * v
+	uw := u * w
+	vv := v * v
+	vw := v * w
+	ww := w * w
+	us := u * s
+	vs := v * s
+	ws := w * s
+
+	ic := 1 - c
+
+	uv_ic := uv * ic
+	uw_ic := uw * ic
+	vw_ic := vw * ic
 
 	mRotate := Mat4{
-		Vec4{icosAd00 + cosA, icosAd01 + sinAd2, icosAd02 + sinAd1, 0},
-		Vec4{icosAd01 + sinAd2, icosAd11 + cosA, icosAd12 - sinAd0, 0},
-		Vec4{icosAd02 - sinAd1, icosAd12 + sinAd0, icosAd22 + cosA, 0},
+		Vec4{uu + (1-uu)*c, uv_ic - ws, uw_ic + vs, 0},
+		Vec4{uv_ic + ws, vv + (1-vv)*c, vw_ic - us, 0},
+		Vec4{uw_ic - vs, vw_ic + us, ww + (1-ww)*c, 0},
 		Vec4{0, 0, 0, 1},
 	}
 

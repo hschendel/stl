@@ -129,12 +129,13 @@ func TestMeasure(t *testing.T) {
 func TestRotate(t *testing.T) {
 	sOrig := makeTestSolid()
 	s := makeTestSolid()
-	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, 0)
+	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, HalfPi)
+	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, -HalfPi)
 	if !sOrig.sameOrderAlmostEqual(s) {
-		t.Error("Not equal after rotation with 0 angle")
+		t.Error("Not equal after opposite rotations.")
 		t.Log("Expected:\n", sOrig)
 		t.Log("Found:\n", s)
-	}
+	}	
 }
 
 func BenchmarkTransform(b *testing.B) {
