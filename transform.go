@@ -7,8 +7,8 @@ import (
 )
 
 // Calculates a 4x4 rotation matrix for a rotation of angle in radians
-// around a axis defined by dir.
-// The returns a rotation matrix.
+// around a rotation axis defined by a point on it (pos) and its direction (dir).
+// The result is written into *rotationMatrix.
 func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 	dirN := dir.unitVec()
 
