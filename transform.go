@@ -28,7 +28,7 @@ func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 	icosAd22 := icosAd2 * float64(dirN[2])
 
 	mRotate := Mat4{
-		Vec4{icosAd00 + cosA, icosAd01 + sinAd2, icosAd02 + sinAd1, 0},
+		Vec4{icosAd00 + cosA, icosAd01 - sinAd2, icosAd02 + sinAd1, 0},
 		Vec4{icosAd01 + sinAd2, icosAd11 + cosA, icosAd12 - sinAd0, 0},
 		Vec4{icosAd02 - sinAd1, icosAd12 + sinAd0, icosAd22 + cosA, 0},
 		Vec4{0, 0, 0, 1},
