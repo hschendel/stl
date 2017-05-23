@@ -131,7 +131,23 @@ func TestRotate(t *testing.T) {
 	s := makeTestSolid()
 	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, 0)
 	if !sOrig.sameOrderAlmostEqual(s) {
-		t.Error("Not equal after rotation with 0 angle")
+		t.Error("Not equal after rotation around z-axis with 0 angle")
+		t.Log("Expected:\n", sOrig)
+		t.Log("Found:\n", s)
+	}
+
+	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, HalfPi)
+	s.Rotate(Vec3{0, 0, 0}, Vec3{0, 0, 1}, -HalfPi)
+	if !sOrig.sameOrderAlmostEqual(s) {
+		t.Error("Not equal after two rotations around z-axis cancelling each other out")
+		t.Log("Expected:\n", sOrig)
+		t.Log("Found:\n", s)
+	}
+
+	s.Rotate(Vec3{0, 0, 0}, Vec3{1, 1, 1}, HalfPi)
+	s.Rotate(Vec3{0, 0, 0}, Vec3{1, 1, 1}, -HalfPi)
+	if !sOrig.sameOrderAlmostEqual(s) {
+		t.Error("Not equal after two rotations cancelling each other out")
 		t.Log("Expected:\n", sOrig)
 		t.Log("Found:\n", s)
 	}
