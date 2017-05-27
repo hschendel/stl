@@ -48,7 +48,8 @@ errWrite := solid.WriteFile(outputFilename)
 Further Reading
 ---------------
 
-The package godoc documentation should be helpful. Just start a local godoc
+The [package godoc documentation](https://godoc.org/github.com/hschendel/stl)
+should be helpful. Or just start a local godoc
 server using this command:
 
     godoc -http=:6060
