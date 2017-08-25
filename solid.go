@@ -62,7 +62,7 @@ func (solid *Solid) Transform(transformationMatrix *Mat4) {
 	l := len(solid.Triangles)
 	for i := 0; i < l; i++ {
 		// Tried go-routines here. Was slower even with large solids.
-    solid.Triangles[i].transform(transformationMatrix)
+		solid.Triangles[i].transform(transformationMatrix)
 	}
 }
 
@@ -103,14 +103,14 @@ func (solid *Solid) Scale(factor float64) {
 
 // Scale all vertex coordinates by different factors per axis
 func (solid *Solid) Stretch(vec Vec3) {
-  for i := 0; i < len(solid.Triangles); i++ {
+	for i := 0; i < len(solid.Triangles); i++ {
 		t := &solid.Triangles[i]
 		for v := 0; v < 3; v++ {
 			for d := 0; d < 3; d++ {
 				t.Vertices[v][d] = float32(float64(vec[d]) * float64(t.Vertices[v][d]))
 			}
 		}
-    t.recalculateNormal()
+		t.recalculateNormal()
 	}
 }
 
@@ -168,7 +168,7 @@ func (solid *Solid) MoveToPositive() {
 	var translationVector Vec3
 	for dim := 0; dim < 3; dim++ {
 		if measure.Min[dim] < 0 {
-			translationVector[dim] = -measure.Min[0] // move smallest value to 0
+			translationVector[dim] = -measure.Min[dim] // move smallest value to 0
 		}
 	}
 	// only apply vector if non-zero
@@ -202,12 +202,12 @@ type TriangleErrors struct {
 	// true if some vertices are identical, meaning we are having
 	// a line, or even a point, as opposed to a triangle.
 	HasEqualVertices bool
-  
-  // true if the normal vector does not match a normal calculated from the
-  // vertices in the right hand order, even allowing for an angular difference
-  // of < 90 degree.
-  NormalDoesNotMatch bool
-  
+
+	// true if the normal vector does not match a normal calculated from the
+	// vertices in the right hand order, even allowing for an angular difference
+	// of < 90 degree.
+	NormalDoesNotMatch bool
+
 	// Errors by edge. The edge is indexed by it's first vertex, i.e.
 	//    0: V0 -> V1
 	//    1: V1 -> V2
@@ -331,16 +331,16 @@ func (solid *Solid) Validate() map[int]*TriangleErrors {
 
 	for i := range solid.Triangles {
 		t := &solid.Triangles[i]
-    // check for equal vertices
+		// check for equal vertices
 		if t.hasEqualVertices() {
 			triangleErrors.item(i).HasEqualVertices = true
 		}
 
-    // check if normal matches vertices
-    if !t.checkNormal(normalAngleTolerance) {
-      triangleErrors.item(i).NormalDoesNotMatch = true
-    }
-    
+		// check if normal matches vertices
+		if !t.checkNormal(normalAngleTolerance) {
+			triangleErrors.item(i).NormalDoesNotMatch = true
+		}
+
 		// loop through edges, vertex1 is also the index of the edge
 		for vertex1 := 0; vertex1 < 3; vertex1++ {
 			vertex2 := (vertex1 + 1) % 3
