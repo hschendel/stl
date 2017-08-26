@@ -22,12 +22,12 @@ const tolerance = float32(0.0005)
 
 // Returns true, if a and b are equal allowing for numerical error tol.
 func almostEqual32(a, b, tol float32) bool {
-	return math.Abs(float64(a-b)) <= float64(tol) 
+	return math.Abs(float64(a-b)) <= float64(tol)
 }
 
 // Returns true, if a and b are equal allowing for numerical error tol.
 func almostEqual64(a, b, tol float64) bool {
-  return math.Abs(a-b) <= tol
+	return math.Abs(a-b) <= tol
 }
 
 func min(a, b float32) float32 {

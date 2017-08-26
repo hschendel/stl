@@ -24,7 +24,7 @@ type Triangle struct {
 
 // Calculate the normal vector using the right hand rule
 func (t *Triangle) calculateNormal() Vec3 {
-  // The normal is calculated by normalizing the result of
+	// The normal is calculated by normalizing the result of
 	// (V0-V2) x (V1-V2)
 	return t.Vertices[0].diff(t.Vertices[2]).
 		cross(t.Vertices[1].diff(t.Vertices[2])).
@@ -62,6 +62,6 @@ func (t *Triangle) hasEqualVertices() bool {
 // Checks if normal matches vertices using right hand rule, with
 // numerical tolerance for angle between them given by tol in radians.
 func (t *Triangle) checkNormal(tol float64) bool {
-  calculatedNormal := t.calculateNormal()
-  return t.Normal.angle(calculatedNormal) < tol
+	calculatedNormal := t.calculateNormal()
+	return t.Normal.angle(calculatedNormal) < tol
 }

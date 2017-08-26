@@ -31,8 +31,8 @@ func TestScale(t *testing.T) {
 func TestStretch(t *testing.T) {
 	sOrig := makeTestSolid()
 	s := makeTestSolid()
-	s.Stretch(Vec3{1,2,1})
-	s.Stretch(Vec3{1,0.5,1})
+	s.Stretch(Vec3{1, 2, 1})
+	s.Stretch(Vec3{1, 0.5, 1})
 	if !sOrig.sameOrderAlmostEqual(s) {
 		t.Error("Not equal after successive Y scaling * 2 * 0.5")
 	}

@@ -66,25 +66,25 @@ func (vec Vec3) cross(o Vec3) Vec3 {
 
 // Return dot product between vec and o.
 func (vec Vec3) dot(o Vec3) float64 {
-  return float64(vec[0]) * float64(o[0]) +
-    float64(vec[1]) * float64(o[1]) +
-    float64(vec[2]) * float64(o[2])
+	return float64(vec[0])*float64(o[0]) +
+		float64(vec[1])*float64(o[1]) +
+		float64(vec[2])*float64(o[2])
 }
 
 // Return angle between vec and o in radians, without sign, between 0 and Pi.
 // If vec or o is the origin, this returns 0.
 func (vec Vec3) angle(o Vec3) float64 {
-  lenProd := vec.len() * o.len()
-  if lenProd == 0 {
-    return 0
-  }
-  cosAngle := vec.dot(o) / lenProd
-  // Numerical correction
-  if cosAngle < -1 {
-    cosAngle = -1
-  } else if cosAngle > 1 {
-    cosAngle = 1
-  }
-  
-  return math.Acos(cosAngle)
+	lenProd := vec.len() * o.len()
+	if lenProd == 0 {
+		return 0
+	}
+	cosAngle := vec.dot(o) / lenProd
+	// Numerical correction
+	if cosAngle < -1 {
+		cosAngle = -1
+	} else if cosAngle > 1 {
+		cosAngle = 1
+	}
+
+	return math.Acos(cosAngle)
 }

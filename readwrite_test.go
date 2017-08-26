@@ -15,12 +15,12 @@ const TestFilenameComplexAscii = "testdata/complex_ascii.stl"
 const TestFilenameComplexBinary = "testdata/complex_bin.stl"
 
 func TestIsAsciiFile(t *testing.T) {
-  asciiFile, openAsciiErr := os.Open(TestFilenameSimpleAscii)
-  if openAsciiErr != nil {
-    t.Fatal(openAsciiErr)
-  }
-  defer asciiFile.Close()
-  
+	asciiFile, openAsciiErr := os.Open(TestFilenameSimpleAscii)
+	if openAsciiErr != nil {
+		t.Fatal(openAsciiErr)
+	}
+	defer asciiFile.Close()
+
 	isAscii, _, err := isAsciiFile(asciiFile)
 	if err != nil {
 		t.Fatal(err)
@@ -29,12 +29,12 @@ func TestIsAsciiFile(t *testing.T) {
 		t.Error("ASCII file not detected as ASCII")
 	}
 
-  binaryFile, openBinaryErr := os.Open(TestFilenameSimpleBinary)
-  if openBinaryErr != nil {
-    t.Fatal(openBinaryErr)
-  }
-  defer binaryFile.Close()
-  
+	binaryFile, openBinaryErr := os.Open(TestFilenameSimpleBinary)
+	if openBinaryErr != nil {
+		t.Fatal(openBinaryErr)
+	}
+	defer binaryFile.Close()
+
 	isAscii, _, err = isAsciiFile(binaryFile)
 	if err != nil {
 		t.Fatal(err)
@@ -237,10 +237,9 @@ func BenchmarkWriteSmallFile_Binary(b *testing.B) {
 	}
 }
 
-
 // Does assume ReadFile to work correctly
 func BenchmarkWriteMediumFile_Binary(b *testing.B) {
-  b.StopTimer()
+	b.StopTimer()
 	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		b.Fatal(tmpErr)
@@ -248,12 +247,12 @@ func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 	defer os.RemoveAll(tmpDirName)
 
 	testSolid, readErr := ReadFile(TestFilenameComplexBinary)
-  if readErr != nil {
-    b.Fatal(readErr)
-  }
-  
+	if readErr != nil {
+		b.Fatal(readErr)
+	}
+
 	testSolid.IsAscii = false // to be sure ;-)
-  b.StartTimer()
+	b.StartTimer()
 	var tmpFileName string
 	for i := 0; i < b.N; i++ {
 		// generate a new file name for every turn, as overwriting the same file again
@@ -265,4 +264,3 @@ func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 		}
 	}
 }
-
