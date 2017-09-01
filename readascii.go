@@ -87,7 +87,7 @@ var idents = map[int]string{
 	idVertex:   "vertex",
 	idEndloop:  "endloop",
 	idEndfacet: "endfacet",
-	idEndsolid: "endsolit",
+	idEndsolid: "endsolid",
 }
 
 func (p *parser) Parse(solid *Solid) bool {
