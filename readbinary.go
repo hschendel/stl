@@ -4,7 +4,6 @@ package stl
 
 import (
 	"encoding/binary"
-	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -24,14 +23,14 @@ func readAllBinary(r io.Reader, first6 []byte) (solid *Solid, err error) {
 
 	var solidData Solid
 	solidData.BinaryHeader = header[0:80]
-	solidData.Name = extractAsciiString(solidData.BinaryHeader)
+	solidData.Name = extractASCIIString(solidData.BinaryHeader)
 	triangleCount := binary.LittleEndian.Uint32(header[80:84])
 	solidData.Triangles = make([]Triangle, triangleCount)
 
 	for i := range solidData.Triangles {
 		readErr = readTriangleBinary(r, &solidData.Triangles[i])
 		if readErr != nil {
-			err = errors.New(fmt.Sprintf("While reading triangle no. %d at byte %d: %s", i, 84+i*50, readErr.Error()))
+			err = fmt.Errorf("While reading triangle no. %d at byte %d: %s", i, 84+i*50, readErr.Error())
 			return
 		}
 	}
@@ -49,9 +48,8 @@ func readTriangleBinary(r io.Reader, t *Triangle) error {
 		if readErr != nil {
 			if readErr == io.EOF {
 				return ErrUnexpectedEOF
-			} else {
-				return readErr
 			}
+			return readErr
 		}
 	}
 

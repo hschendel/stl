@@ -2,7 +2,7 @@ package stl
 
 // This file defines the Triangle data type, the building block for Solid
 
-// Data type for single triangles used in Solid.Triangles. The vertices
+// Triangle represents single triangles used in Solid.Triangles. The vertices
 // have to be ordered counter-clockwise when looking at their outside surface.
 // The vector Normal is orthogonal to the triangle, pointing outside, and
 // has length 1. This is redundant but included in the STL format in order to

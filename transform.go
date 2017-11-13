@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-// Calculates a 4x4 rotation matrix for a rotation of angle in radians
+// RotationMatrix calculates a 4x4 rotation matrix for a rotation of angle in radians
 // around a rotation axis defined by a point on it (pos) and its direction (dir).
 // The result is written into *rotationMatrix.
 func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
@@ -25,24 +25,24 @@ func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
 
 	ic := 1 - c
 
-	ic_u := ic * u
+	icu := ic * u
 
-	ic_uu := ic_u * u
-	ic_uv := ic_u * v
-	ic_uw := ic_u * w
+	icuu := icu * u
+	icuv := icu * v
+	icuw := icu * w
 
-	ic_v := ic * v
+	icv := ic * v
 
-	ic_vv := ic_v * v
-	ic_vw := ic_v * w
+	icvv := icv * v
+	icvw := icv * w
 
-	ic_w := ic * w
-	ic_ww := ic_w * w
+	icw := ic * w
+	icww := icw * w
 
 	mRotate := Mat4{
-		Vec4{ic_uu + c, ic_uv - sw, ic_uw + sv, 0},
-		Vec4{ic_uv + sw, ic_vv + c, ic_vw - su, 0},
-		Vec4{ic_uw - sv, ic_vw + su, ic_ww + c, 0},
+		Vec4{icuu + c, icuv - sw, icuw + sv, 0},
+		Vec4{icuv + sw, icvv + c, icvw - su, 0},
+		Vec4{icuw - sv, icvw + su, icww + c, 0},
 		Vec4{0, 0, 0, 1},
 	}
 

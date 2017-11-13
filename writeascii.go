@@ -7,14 +7,14 @@ import (
 	"io"
 )
 
-func writeSolidAscii(w io.Writer, solid *Solid) error {
+func writeSolidASCII(w io.Writer, solid *Solid) error {
 	var writeErr error
 	_, writeErr = w.Write([]byte("solid " + solid.Name))
 	if writeErr != nil {
 		return writeErr
 	}
 	for _, triangle := range solid.Triangles {
-		writeErr = writeTriangleAscii(w, &triangle)
+		writeErr = writeTriangleASCII(w, &triangle)
 		if writeErr != nil {
 			return writeErr
 		}
@@ -26,7 +26,7 @@ func writeSolidAscii(w io.Writer, solid *Solid) error {
 	return nil
 }
 
-func writeTriangleAscii(w io.Writer, t *Triangle) error {
+func writeTriangleASCII(w io.Writer, t *Triangle) error {
 	var err error
 	_, err = w.Write([]byte("\nfacet normal "))
 	if err != nil {

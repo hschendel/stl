@@ -155,7 +155,7 @@ func TestRotate(t *testing.T) {
 
 func BenchmarkTransform(b *testing.B) {
 	b.StopTimer()
-	solid, err := ReadFile(TestFilenameComplexAscii)
+	solid, err := ReadFile(testFilenameComplexASCII)
 	if err != nil {
 		b.Fatal(err)
 	}

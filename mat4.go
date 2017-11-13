@@ -2,16 +2,16 @@ package stl
 
 // This file contains a 4x4 matrix implementation for 3D transformations
 
-// 4x4 Matrix of float64 used for 3D transformations. The 4th column can
-// be used for moving the solid on the axes.
+// Mat4 represents a 4x4 Matrix of float64 used for 3D transformations.
+// The 4th column can be used for moving the solid on the axes.
 // Accessing matrix elements goes like this:
 //    matrix[row][column]
 type Mat4 [4]Vec4
 
-// Used to construct Mat4
+// Vec4 is used to construct Mat4
 type Vec4 [4]float64
 
-// Multiply m with o and write the result into r.
+// MultMat4 Multiplies m with o and write the result into r.
 func (m *Mat4) MultMat4(o *Mat4, r *Mat4) {
 	// I tried Strassen here, but this is faster - it is simply the number of ops
 	// that counts, not just the number of multiplications.
@@ -34,7 +34,7 @@ func (m *Mat4) MultMat4(o *Mat4, r *Mat4) {
 	r[3][3] = m[3][0]*o[0][3] + m[3][1]*o[1][3] + m[3][2]*o[2][3] + m[3][3]*o[3][3]
 }
 
-// The identity matrix
+// Mat4Identity is the identity matrix
 var Mat4Identity = Mat4{
 	Vec4{1, 0, 0, 0},
 	Vec4{0, 1, 0, 0},
@@ -42,7 +42,7 @@ var Mat4Identity = Mat4{
 	Vec4{0, 0, 0, 1},
 }
 
-// Multiply m with v, where v[3] is assumed to be 1, and the 4th result value is
+// MultVec3 multiplies m with v, where v[3] is assumed to be 1, and the 4th result value is
 // not calculated, as is usual in 3D transformations.
 func (m *Mat4) MultVec3(v Vec3) Vec3 {
 	var result Vec3

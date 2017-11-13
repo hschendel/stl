@@ -3,7 +3,7 @@ package stl
 // This file provides the Solid data type that is a memory representation
 // of an STL file
 
-// A 3D model made out of triangles, called solid in STL, representing
+// Solid is a 3D model made out of triangles, called solid in STL, representing
 // an STL file
 type Solid struct {
 	// only used in binary format
@@ -19,7 +19,7 @@ type Solid struct {
 	IsAscii bool
 }
 
-// Type used to store the result of Solid.Measure()
+// SolidMeasure is used to store the result of Solid.Measure()
 type SolidMeasure struct {
 	// Minimum values for axes
 	Min Vec3
@@ -31,7 +31,7 @@ type SolidMeasure struct {
 	Len Vec3
 }
 
-// Calculate the dimensions of a solid in its own units
+// Measure the dimensions of a solid in its own units
 func (solid *Solid) Measure() SolidMeasure {
 	var measure SolidMeasure
 
@@ -56,7 +56,7 @@ func (solid *Solid) Measure() SolidMeasure {
 	return measure
 }
 
-// Applies a 4x4 transformation matrix to every vertex
+// Transform applies a 4x4 transformation matrix to every vertex
 // and recalculates the normal for every triangle
 func (solid *Solid) Transform(transformationMatrix *Mat4) {
 	l := len(solid.Triangles)
@@ -66,7 +66,7 @@ func (solid *Solid) Transform(transformationMatrix *Mat4) {
 	}
 }
 
-// Applies a 4x4 transformation matrix to every vertex
+// TransformNR applies a 4x4 transformation matrix to every vertex
 // and does not recalculate the normal vector for every triangle.
 // This could be used to speed things up when multiple transformations
 // are applied successively to a solid, and the transformation matrix
@@ -80,7 +80,7 @@ func (solid *Solid) TransformNR(transformationMatrix *Mat4) {
 	}
 }
 
-// Recalculate all triangle normal vectors from the vertices.
+// RecalculateNormals recalculates all triangle normal vectors from the vertices.
 // Can be used after multiple transformations using the TransformNR method
 // that does not recalculate the normal vectors.
 func (solid *Solid) RecalculateNormals() {
@@ -101,7 +101,7 @@ func (solid *Solid) Scale(factor float64) {
 	}
 }
 
-// Scale all vertex coordinates by different factors per axis
+// Stretch scales all vertex coordinates by different factors per axis
 func (solid *Solid) Stretch(vec Vec3) {
 	for i := 0; i < len(solid.Triangles); i++ {
 		t := &solid.Triangles[i]
@@ -114,9 +114,9 @@ func (solid *Solid) Stretch(vec Vec3) {
 	}
 }
 
-// If solid does not fit into size box defined by sizeBox, it is scaled down
-// accordingly. It is not scaled up, if it is smaller than sizeBox.
-// All sizes have to be > 0.
+// ScaleLinearDowntoSizeBox works like this: if the solid does not fit into size box
+// defined by sizeBox, it is scaled down accordingly. It is not scaled up, if it is
+// smaller than sizeBox. All sizes have to be > 0.
 func (solid *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
 	if sizeBox[0] <= 0 || sizeBox[1] <= 0 || sizeBox[2] <= 0 {
 		panic("Not all values in sizeBox are > 0!")
@@ -148,7 +148,7 @@ func (solid *Solid) Translate(vec Vec3) {
 	}
 }
 
-// Returns true if every vertex in this solid is within the positive octant, i.e.
+// IsInPositive is true if every vertex in this solid is within the positive octant, i.e.
 // all coordinate values are positive or 0.
 func (solid *Solid) IsInPositive() bool {
 	measure := solid.Measure()
@@ -160,9 +160,9 @@ func (solid *Solid) IsInPositive() bool {
 	return true
 }
 
-// Move solid into positive octant if necessary, as prescribed by the original STL format spec.
-// Some applications tolerate negative coordinates. This also makes sense, as the origin
-// is a perfect reference point for rotations.
+// MoveToPositive moves the solid into the positive octant if necessary, as prescribed by
+// the original STL format spec. Some applications tolerate negative coordinates. This also
+// makes sense, as the origin is a perfect reference point for rotations.
 func (solid *Solid) MoveToPositive() {
 	measure := solid.Measure()
 	var translationVector Vec3
@@ -177,7 +177,7 @@ func (solid *Solid) MoveToPositive() {
 	}
 }
 
-// Scale only dimension dim of solid by scalar factor.
+// scaleDim scales only dimension dim of solid by scalar factor.
 func (solid *Solid) scaleDim(factor float64, dim int) {
 	for i := 0; i < len(solid.Triangles); i++ {
 		for v := 0; v < 3; v++ {
@@ -197,18 +197,18 @@ func (solid *Solid) Rotate(pos, dir Vec3, angle float64) {
 	solid.Transform(&rotationMatrix)
 }
 
-// Describes the errors found in a single triangle.
+// TriangleErrors represent the errors found in a single triangle.
 type TriangleErrors struct {
-	// true if some vertices are identical, meaning we are having
+	// HasEqualVertices is true if some vertices are identical, meaning we are having
 	// a line, or even a point, as opposed to a triangle.
 	HasEqualVertices bool
 
-	// true if the normal vector does not match a normal calculated from the
+	// NormalDoesNotMatch istrue if the normal vector does not match a normal calculated from the
 	// vertices in the right hand order, even allowing for an angular difference
 	// of < 90 degree.
 	NormalDoesNotMatch bool
 
-	// Errors by edge. The edge is indexed by it's first vertex, i.e.
+	// EdgeErrors by edge. The edge is indexed by it's first vertex, i.e.
 	//    0: V0 -> V1
 	//    1: V1 -> V2
 	//    2: V2 -> V0
@@ -216,7 +216,7 @@ type TriangleErrors struct {
 	EdgeErrors [3]*EdgeError
 }
 
-// Convenience accessor that allocates an EdgeError for edge e if
+// edge is a convenience accessor that allocates an EdgeError for edge e if
 // it is not already present. e is the index of the edge, being equal
 // to the index of the first vertex.
 func (te *TriangleErrors) edge(e int) *EdgeError {
@@ -226,32 +226,32 @@ func (te *TriangleErrors) edge(e int) *EdgeError {
 	return te.EdgeErrors[e]
 }
 
-// Describes the errors found for a single edge within a triangle using
+// EdgeError describes the errors found for a single edge within a triangle using
 // Solid.Validate().
 type EdgeError struct {
-	// Indexes in Solid.Triangles of triangles that contain exactly the same edge.
+	// SameEdgeTriangles are indexes in Solid.Triangles of triangles that contain exactly the same edge.
 	SameEdgeTriangles []int
 
-	// Indexes in Solid.Triangles of triangles that contain the edge in the
+	// CounterEdgeTriangles are indexes in Solid.Triangles of triangles that contain the edge in the
 	// opposite direction. If there is exactly one other triangle, this is no
 	// error.
 	CounterEdgeTriangles []int
 }
 
-// true if this edge is also used in another triangle, meaning that
+// IsUsedInOtherTriangles is true if this edge is also used in another triangle, meaning that
 // there is probably something wrong with this or the other triangle's
 // orientation.
 func (eer *EdgeError) IsUsedInOtherTriangles() bool {
 	return len(eer.SameEdgeTriangles) != 0
 }
 
-// true if there is more than one other triangle
+// HasMultipleCounterEdges is true if there is more than one other triangle
 // with this edge in the opposite direction
 func (eer *EdgeError) HasMultipleCounterEdges() bool {
 	return len(eer.CounterEdgeTriangles) > 1
 }
 
-// true if there is no other triangle with this edge in the opposite
+// HasNoCounterEdge is true if there is no other triangle with this edge in the opposite
 // direction, meaning that there is no neighboring triangle
 func (eer *EdgeError) HasNoCounterEdge() bool {
 	return len(eer.CounterEdgeTriangles) == 0
@@ -297,10 +297,10 @@ func (l *edgeLookup) InsertEdge(triangleIndex int, v, w Vec3) {
 	triangleSet[triangleIndex] = true
 }
 
-// Define a type so we can declare a method.
+// triangleErrorsMap represents errors by triangle index
 type triangleErrorsMap map[int]*TriangleErrors
 
-// A convenient map accessor that creates the entry on first use.
+// item is a convenient map accessor that creates the entry on first use.
 func (m triangleErrorsMap) item(triangleIdx int) *TriangleErrors {
 	if _, found := m[triangleIdx]; !found {
 		m[triangleIdx] = new(TriangleErrors)
@@ -310,7 +310,7 @@ func (m triangleErrorsMap) item(triangleIdx int) *TriangleErrors {
 
 const normalAngleTolerance = HalfPi
 
-// Looks for triangles that are really lines or dots, and for edges that
+// Validate looks for triangles that are really lines or dots, and for edges that
 // violate the vertex-to-vertex rule. Returns a map of errors by triangle
 // index that could be used to print out an error report.
 func (solid *Solid) Validate() map[int]*TriangleErrors {

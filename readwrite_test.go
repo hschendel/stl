@@ -9,43 +9,43 @@ import (
 	"testing"
 )
 
-const TestFilenameSimpleAscii = "testdata/simple_ascii.stl"
-const TestFilenameSimpleBinary = "testdata/simple_bin.stl"
-const TestFilenameComplexAscii = "testdata/complex_ascii.stl"
-const TestFilenameComplexBinary = "testdata/complex_bin.stl"
+const testFilenameSimpleASCII = "testdata/simple_ascii.stl"
+const testFilenameSimpleBinary = "testdata/simple_bin.stl"
+const testFilenameComplexASCII = "testdata/complex_ascii.stl"
+const testFilenameComplexBinary = "testdata/complex_bin.stl"
 
 func TestIsAsciiFile(t *testing.T) {
-	asciiFile, openAsciiErr := os.Open(TestFilenameSimpleAscii)
-	if openAsciiErr != nil {
-		t.Fatal(openAsciiErr)
+	asciiFile, openASCIIErr := os.Open(testFilenameSimpleASCII)
+	if openASCIIErr != nil {
+		t.Fatal(openASCIIErr)
 	}
 	defer asciiFile.Close()
 
-	isAscii, _, err := isAsciiFile(asciiFile)
+	isASCII, _, err := isASCIIFile(asciiFile)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !isAscii {
+	if !isASCII {
 		t.Error("ASCII file not detected as ASCII")
 	}
 
-	binaryFile, openBinaryErr := os.Open(TestFilenameSimpleBinary)
+	binaryFile, openBinaryErr := os.Open(testFilenameSimpleBinary)
 	if openBinaryErr != nil {
 		t.Fatal(openBinaryErr)
 	}
 	defer binaryFile.Close()
 
-	isAscii, _, err = isAsciiFile(binaryFile)
+	isASCII, _, err = isASCIIFile(binaryFile)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if isAscii {
+	if isASCII {
 		t.Error("Binary file detected as ASCII")
 	}
 }
 
 func TestReadFile_Ascii(t *testing.T) {
-	solid, err := ReadFile(TestFilenameSimpleAscii)
+	solid, err := ReadFile(testFilenameSimpleASCII)
 	if err != nil {
 		t.Fatal("Error in ReadFile: " + err.Error())
 	}
@@ -59,18 +59,18 @@ func TestReadFile_Ascii(t *testing.T) {
 	}
 }
 
-func BenchmarkReadFile_Ascii_Simple(b *testing.B) {
+func BenchmarkReadFile_ASCII_Simple(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ReadFile(TestFilenameSimpleAscii)
+		_, err := ReadFile(testFilenameSimpleASCII)
 		if err != nil {
 			b.Fatal("Error in ReadFile: " + err.Error())
 		}
 	}
 }
 
-func BenchmarkReadFile_Ascii_Complex(b *testing.B) {
+func BenchmarkReadFile_ASCII_Complex(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ReadFile(TestFilenameComplexAscii)
+		_, err := ReadFile(testFilenameComplexASCII)
 		if err != nil {
 			b.Fatal("Error in ReadFile: " + err.Error())
 		}
@@ -78,7 +78,7 @@ func BenchmarkReadFile_Ascii_Complex(b *testing.B) {
 }
 
 func TestReadFile_Binary(t *testing.T) {
-	solid, err := ReadFile(TestFilenameSimpleBinary)
+	solid, err := ReadFile(testFilenameSimpleBinary)
 	if err != nil {
 		t.Fatal("Error in ReadFile: " + err.Error())
 	}
@@ -95,7 +95,7 @@ func TestReadFile_Binary(t *testing.T) {
 
 func BenchmarkReadFile_Binary_Simple(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ReadFile(TestFilenameSimpleBinary)
+		_, err := ReadFile(testFilenameSimpleBinary)
 		if err != nil {
 			b.Fatal("Error in ReadFile: " + err.Error())
 		}
@@ -104,7 +104,7 @@ func BenchmarkReadFile_Binary_Simple(b *testing.B) {
 
 func BenchmarkReadFile_Binary_Complex(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := ReadFile(TestFilenameComplexBinary)
+		_, err := ReadFile(testFilenameComplexBinary)
 		if err != nil {
 			b.Fatal("Error in ReadFile: " + err.Error())
 		}
@@ -112,7 +112,7 @@ func BenchmarkReadFile_Binary_Complex(b *testing.B) {
 }
 
 func TestReadAll_Binary(t *testing.T) {
-	file, openErr := os.Open(TestFilenameSimpleBinary)
+	file, openErr := os.Open(testFilenameSimpleBinary)
 	if openErr != nil {
 		t.Fatal(openErr)
 	}
@@ -148,7 +148,7 @@ func TestWriteFile_Ascii(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	eq, cmpErr := cmpFiles(TestFilenameSimpleAscii, tmpFileName)
+	eq, cmpErr := cmpFiles(testFilenameSimpleASCII, tmpFileName)
 	if cmpErr != nil {
 		t.Fatal(cmpErr)
 	}
@@ -160,11 +160,11 @@ func TestWriteFile_Ascii(t *testing.T) {
 			t.Fatal(readErr)
 		}
 		t.Log(string(data))
-		t.Error("Was expected to look like " + TestFilenameSimpleAscii)
+		t.Error("Was expected to look like " + testFilenameSimpleASCII)
 	}
 }
 
-func BenchmarkWriteSmallFile_Ascii(b *testing.B) {
+func BenchmarkWriteSmallFile_ASCII(b *testing.B) {
 	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		b.Fatal(tmpErr.Error())
@@ -200,7 +200,7 @@ func TestWriteFile_Binary(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 
-	eq, cmpErr := cmpFiles(TestFilenameSimpleBinary, tmpFileName)
+	eq, cmpErr := cmpFiles(testFilenameSimpleBinary, tmpFileName)
 	if cmpErr != nil {
 		t.Fatal(cmpErr)
 	}
@@ -212,7 +212,7 @@ func TestWriteFile_Binary(t *testing.T) {
 			t.Fatal(readErr)
 		}
 		t.Log(string(data))
-		t.Error("Was expected to look like " + TestFilenameSimpleBinary)
+		t.Error("Was expected to look like " + testFilenameSimpleBinary)
 	}
 }
 
@@ -246,7 +246,7 @@ func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 	}
 	defer os.RemoveAll(tmpDirName)
 
-	testSolid, readErr := ReadFile(TestFilenameComplexBinary)
+	testSolid, readErr := ReadFile(testFilenameComplexBinary)
 	if readErr != nil {
 		b.Fatal(readErr)
 	}

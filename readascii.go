@@ -13,7 +13,7 @@ import (
 	"strconv"
 )
 
-func readAllAscii(r io.Reader) (solid *Solid, err error) {
+func readAllASCII(r io.Reader) (solid *Solid, err error) {
 	var sd Solid
 	p := newParser(r)
 	if p.Parse(&sd) {
@@ -95,7 +95,7 @@ func (p *parser) Parse(solid *Solid) bool {
 		p.HeaderError = true
 		p.addError("File is empty")
 	} else {
-		p.HeaderError = !p.parseAsciiHeaderLine(solid)
+		p.HeaderError = !p.parseASCIIHeaderLine(solid)
 
 		triangles := list.New()
 	TriangleLoop:
@@ -141,13 +141,13 @@ func (p *parser) generateErrorText() {
 }
 
 // assumes that the first 6 chars "solid " have already bin read
-func (p *parser) parseAsciiHeaderLine(solid *Solid) bool {
+func (p *parser) parseASCIIHeaderLine(solid *Solid) bool {
 	var success bool
 	if p.eof {
 		p.addError("Unexpected end of file")
 		success = false
 	} else {
-		solid.Name = extractAsciiString(p.currentLine)
+		solid.Name = extractASCIIString(p.currentLine)
 		success = true
 	}
 	p.nextLine()
@@ -179,11 +179,11 @@ func (p *parser) parseFloat32(f *float32) bool {
 	if err != nil {
 		p.addError("Unable to parse float")
 		return false
-	} else {
-		*f = float32(f64)
-		p.nextWord()
-		return true
 	}
+
+	*f = float32(f64)
+	p.nextWord()
+	return true
 }
 
 func (p *parser) isCurrentTokenIdent(ident int) bool {
@@ -198,30 +198,27 @@ func (p *parser) skipToToken(ident int) int {
 			if ident == (idFacet | idEndsolid) {
 				if identRegexps[idFacet].MatchString(p.currentWord) {
 					return idFacet
-				} else {
-					return idEndsolid
 				}
-			} else {
-				return ident
+				return idEndsolid
 			}
-		} else {
-			if !p.nextWord() {
-				return idNone
-			}
+			return ident
+		}
+		if !p.nextWord() {
+			return idNone
 		}
 	}
 }
 
 func (p *parser) consumeToken(ident int) bool {
 	re := identRegexps[ident]
-	if re.MatchString(p.currentWord) {
-		p.nextWord()
-		return true
-	} else {
+	if !re.MatchString(p.currentWord) {
 		ident := idents[ident]
 		p.addError("\"" + ident + "\" expected")
 		return false
 	}
+
+	p.nextWord()
+	return true
 }
 
 func (p *parser) nextWord() bool {
@@ -232,17 +229,15 @@ func (p *parser) nextWord() bool {
 	if p.wordScanner.Scan() {
 		p.currentWord = p.wordScanner.Text()
 		return true
-	} else {
-		if p.wordScanner.Err() == nil { // line has ended
-			return p.nextLine()
-		} else {
-			p.addError(p.wordScanner.Err().Error())
-			p.currentLine = nil
-			p.currentWord = ""
-			p.eof = true
-			return false
-		}
 	}
+	if p.wordScanner.Err() == nil { // line has ended
+		return p.nextLine()
+	}
+	p.addError(p.wordScanner.Err().Error())
+	p.currentLine = nil
+	p.currentWord = ""
+	p.eof = true
+	return false
 }
 
 func (p *parser) nextLine() bool {
@@ -252,13 +247,13 @@ func (p *parser) nextLine() bool {
 		p.wordScanner = bufio.NewScanner(bytes.NewReader(p.currentLine))
 		p.wordScanner.Split(bufio.ScanWords)
 		return p.nextWord()
-	} else {
-		if p.lineScanner.Err() != nil {
-			p.addError(p.lineScanner.Err().Error())
-		}
-		p.currentLine = nil
-		p.currentWord = ""
-		p.eof = true
-		return false
 	}
+
+	if p.lineScanner.Err() != nil {
+		p.addError(p.lineScanner.Err().Error())
+	}
+	p.currentLine = nil
+	p.currentWord = ""
+	p.eof = true
+	return false
 }

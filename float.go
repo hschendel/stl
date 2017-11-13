@@ -6,21 +6,19 @@ import (
 	"math"
 )
 
-// Just for convenience.
+// Pi is just math.Pi
 const Pi = math.Pi
 
-// Just for convenience.
+// TwoPi is math.Pi * 2
 const TwoPi = math.Pi * 2
 
-// Just for convenience.
+// HalfPi is math.Pi * 0.5
 const HalfPi = math.Pi * 0.5
 
-// Just for convenience.
+// QuarterPi is math.Pi * 0.25
 const QuarterPi = math.Pi * 0.25
 
-const tolerance = float32(0.0005)
-
-// Returns true, if a and b are equal allowing for numerical error tol.
+// almostEqual returns true, if a and b are equal allowing for numerical error tol.
 func almostEqual32(a, b, tol float32) bool {
 	return math.Abs(float64(a-b)) <= float64(tol)
 }
@@ -33,9 +31,8 @@ func almostEqual64(a, b, tol float64) bool {
 func min(a, b float32) float32 {
 	if a < b {
 		return a
-	} else {
-		return b
 	}
+	return b
 }
 
 func min4(a, b, c, d float32) float32 {
@@ -45,9 +42,8 @@ func min4(a, b, c, d float32) float32 {
 func max(a, b float32) float32 {
 	if a > b {
 		return a
-	} else {
-		return b
 	}
+	return b
 }
 
 func max4(a, b, c, d float32) float32 {
