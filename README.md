@@ -2,7 +2,7 @@ stl
 ===
 
 A library to read, write, and transform Stereolithography (.stl) files in Go.
-It is used in the command line STL manipulation tool [stltool](/hschendel/stltool).
+It is used in the command line STL manipulation tool [stltool](https://github.com/hschendel/stltool).
 
 Features
 --------
