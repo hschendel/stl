@@ -6,6 +6,7 @@ package stl
 import (
 	"bufio"
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"io"
 	"os"
@@ -30,27 +31,28 @@ func ReadFile(filename string) (solid *Solid, err error) {
 	}
 	defer file.Close()
 
-	return ReadAll(bufio.NewReader(file))
+	return ReadAll(file)
 }
 
 // ReadAll reads the contents of a file into a new Solid object. The file
 // can be either in STL ASCII format, beginning with "solid ", or in
-// STL binary format, beginning with a 84 byte header. Because of this,
-// the file pointer has to be at the beginning of the file.
-func ReadAll(r io.Reader) (solid *Solid, err error) {
-	isASCII, first6, isASCIIErr := isASCIIFile(r)
+// STL binary format, beginning with a 84 byte header.
+// It also supports binary files which also start with "solid ".
+// This should not be the case, but there are such files out there.
+func ReadAll(file *os.File) (solid *Solid, err error) {
+	isASCII, isASCIIErr := isASCIIFile(file.Name())
 	if isASCIIErr != nil {
 		err = isASCIIErr
 		return
 	}
 
 	if isASCII {
-		solid, err = readAllASCII(r)
+		solid, err = readAllASCII(bufio.NewReader(file))
 		if solid != nil {
 			solid.IsAscii = true
 		}
 	} else {
-		solid, err = readAllBinary(r, first6)
+		solid, err = readAllBinary(bufio.NewReader(file))
 		// if read was successful, solid.IsAscii will be initialized to false
 	}
 
@@ -58,12 +60,26 @@ func ReadAll(r io.Reader) (solid *Solid, err error) {
 }
 
 // isASCIIFile detects if the file is in STL ASCII format or if it is binary otherwise.
-// It will consume 6 bytes and return them.
-func isASCIIFile(r io.Reader) (isASCII bool, first6 []byte, err error) {
-	first6 = make([]byte, 6) // "solid "
+func isASCIIFile(fileName string) (isASCII bool, err error) {
+	file, openErr := os.Open(fileName)
+	if openErr != nil {
+		err = openErr
+		return
+	}
+	defer file.Close()
+
+	fileInfo, err := file.Stat()
+	if err != nil {
+		return
+	}
+
+	r := bufio.NewReader(file)
+
+	const headerSize = 84
+	first84 := make([]byte, headerSize)
 	isASCII = false
-	n, readErr := r.Read(first6)
-	if n != 6 || readErr == io.EOF {
+	n, readErr := r.Read(first84)
+	if n < 6 || readErr == io.EOF {
 		err = ErrUnexpectedEOF
 		return
 	} else if readErr != nil {
@@ -71,8 +87,20 @@ func isASCIIFile(r io.Reader) (isASCII bool, first6 []byte, err error) {
 		return
 	}
 
+	first6 := first84[:6] // "solid "
+
 	if bytes.Equal(first6, asciiStart) {
 		isASCII = true
+
+		// Some binary files out there also start with "solid ".
+		// To check these files, read the length field at offset 80.
+		// It specifies the number of triangles in the file.
+		// If it matches the actual length of the file, it is most likely binary.
+		// https://stackoverflow.com/questions/7377954/how-to-detect-that-this-is-a-valid-valid-binary-stlstereolithography-file/7394842#7394842
+		length := binary.LittleEndian.Uint32(first84[80:84])
+		if int64(length)*50+headerSize == fileInfo.Size() {
+			isASCII = false
+		}
 	}
 
 	return

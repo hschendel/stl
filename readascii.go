@@ -41,6 +41,15 @@ func newParser(reader io.Reader) *parser {
 	var p parser
 	p.errors = list.New()
 	p.eof = false
+
+	// Consume the "solid " at the beginning of an ASCII file.
+	n, readErr := reader.Read(make([]byte, 6))
+	if n != 6 || readErr == io.EOF {
+		p.eof = true
+	} else if readErr != nil {
+		p.errors.PushBack(readErr)
+	}
+
 	p.lineScanner = bufio.NewScanner(reader)
 	p.nextLine()
 	return &p

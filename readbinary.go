@@ -9,10 +9,9 @@ import (
 	"math"
 )
 
-func readAllBinary(r io.Reader, first6 []byte) (solid *Solid, err error) {
+func readAllBinary(r io.Reader) (solid *Solid, err error) {
 	header := make([]byte, 84)
-	copy(header, first6)
-	n, readErr := r.Read(header[6:])
+	n, readErr := r.Read(header)
 	if readErr == io.EOF && n != 84 {
 		err = ErrIncompleteBinaryHeader
 		return

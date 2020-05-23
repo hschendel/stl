@@ -11,17 +11,12 @@ import (
 
 const testFilenameSimpleASCII = "testdata/simple_ascii.stl"
 const testFilenameSimpleBinary = "testdata/simple_bin.stl"
+const testFilenameBinaryStartingWithSolid = "testdata/bin_starting_with_solid.stl"
 const testFilenameComplexASCII = "testdata/complex_ascii.stl"
 const testFilenameComplexBinary = "testdata/complex_bin.stl"
 
 func TestIsAsciiFile(t *testing.T) {
-	asciiFile, openASCIIErr := os.Open(testFilenameSimpleASCII)
-	if openASCIIErr != nil {
-		t.Fatal(openASCIIErr)
-	}
-	defer asciiFile.Close()
-
-	isASCII, _, err := isASCIIFile(asciiFile)
+	isASCII, err := isASCIIFile(testFilenameSimpleASCII)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,18 +24,20 @@ func TestIsAsciiFile(t *testing.T) {
 		t.Error("ASCII file not detected as ASCII")
 	}
 
-	binaryFile, openBinaryErr := os.Open(testFilenameSimpleBinary)
-	if openBinaryErr != nil {
-		t.Fatal(openBinaryErr)
-	}
-	defer binaryFile.Close()
-
-	isASCII, _, err = isASCIIFile(binaryFile)
+	isASCII, err = isASCIIFile(testFilenameSimpleBinary)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if isASCII {
 		t.Error("Binary file detected as ASCII")
+	}
+
+	isASCII, err = isASCIIFile(testFilenameBinaryStartingWithSolid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if isASCII {
+		t.Error("Binary file starting with 'solid ' detected as ASCII")
 	}
 }
 
