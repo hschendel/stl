@@ -63,13 +63,14 @@ func CopyAll(r io.ReadSeeker, sw Writer) (err error) {
 	if _, err = r.Seek(0, io.SeekStart); err != nil {
 		return
 	}
+	br := bufio.NewReader(r)
 
 	if isBinary {
 		sw.SetASCII(false)
-		err = readAllBinary(r, sw)
+		err = readAllBinary(br, sw)
 	} else {
 		sw.SetASCII(true)
-		err = readAllASCII(r, sw)
+		err = readAllASCII(br, sw)
 	}
 
 	return
