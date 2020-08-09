@@ -140,15 +140,21 @@ func (p *parser) generateErrorText() {
 	p.ErrorText = buf.String()
 }
 
-// assumes that the first 6 chars "solid " have already bin read
+var expectedASCIIHeaderPrefix = []byte("solid ")
+
 func (p *parser) parseASCIIHeaderLine(solid *Solid) bool {
 	var success bool
 	if p.eof {
-		p.addError("Unexpected end of file")
+		p.addError("unexpected end of file")
 		success = false
 	} else {
-		solid.Name = extractASCIIString(p.currentLine)
-		success = true
+		if !bytes.HasPrefix(p.currentLine, expectedASCIIHeaderPrefix) {
+			p.addError("ASCII header must start with \"solid \"")
+			success = false
+		} else {
+			solid.Name = extractASCIIString(p.currentLine[len(expectedASCIIHeaderPrefix):])
+			success = true
+		}
 	}
 	p.nextLine()
 	return success

@@ -13,34 +13,32 @@ const testFilenameSimpleASCII = "testdata/simple_ascii.stl"
 const testFilenameSimpleBinary = "testdata/simple_bin.stl"
 const testFilenameComplexASCII = "testdata/complex_ascii.stl"
 const testFilenameComplexBinary = "testdata/complex_bin.stl"
+const testFilenameConfusingHeaderBinary = "testdata/confusingheader_bin.stl"
 
-func TestIsAsciiFile(t *testing.T) {
-	asciiFile, openASCIIErr := os.Open(testFilenameSimpleASCII)
-	if openASCIIErr != nil {
-		t.Fatal(openASCIIErr)
+func TestIsBinaryFile(t *testing.T) {
+	cases := []struct {
+		fileName string
+		expected bool
+	}{
+		{testFilenameSimpleASCII, false},
+		{testFilenameSimpleBinary, true},
+		{testFilenameConfusingHeaderBinary, true},
 	}
-	defer asciiFile.Close()
-
-	isASCII, _, err := isASCIIFile(asciiFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !isASCII {
-		t.Error("ASCII file not detected as ASCII")
-	}
-
-	binaryFile, openBinaryErr := os.Open(testFilenameSimpleBinary)
-	if openBinaryErr != nil {
-		t.Fatal(openBinaryErr)
-	}
-	defer binaryFile.Close()
-
-	isASCII, _, err = isASCIIFile(binaryFile)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if isASCII {
-		t.Error("Binary file detected as ASCII")
+	for i, tc := range cases {
+		f, err := os.Open(tc.fileName)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got, err := isBinaryFile(f)
+		if err != nil {
+			t.Errorf("case %d: %s", i, err)
+		} else if got != tc.expected {
+			t.Errorf("case %d: file %q, expected %v but got %v", i, tc.fileName, tc.expected, got)
+		}
+		err = f.Close()
+		if err != nil {
+			t.Errorf("case %d: cannot close file: %s", i, err)
+		}
 	}
 }
 

@@ -9,11 +9,13 @@ import (
 	"math"
 )
 
-func readAllBinary(r io.Reader, first6 []byte) (solid *Solid, err error) {
-	header := make([]byte, 84)
-	copy(header, first6)
-	n, readErr := r.Read(header[6:])
-	if readErr == io.EOF && n != 84 {
+const binaryHeaderSize = 84
+const binaryTriangleSize = 50
+
+func readAllBinary(r io.Reader) (solid *Solid, err error) {
+	var header [binaryHeaderSize]byte
+	n, readErr := r.Read(header[:])
+	if readErr == io.EOF && n != binaryHeaderSize {
 		err = ErrIncompleteBinaryHeader
 		return
 	} else if readErr != nil {
@@ -22,15 +24,15 @@ func readAllBinary(r io.Reader, first6 []byte) (solid *Solid, err error) {
 	}
 
 	var solidData Solid
-	solidData.BinaryHeader = header[0:80]
+	solidData.BinaryHeader = header[0 : binaryHeaderSize-4]
 	solidData.Name = extractASCIIString(solidData.BinaryHeader)
-	triangleCount := binary.LittleEndian.Uint32(header[80:84])
+	triangleCount := triangleCountFromBinaryHeader(header[:])
 	solidData.Triangles = make([]Triangle, triangleCount)
 
 	for i := range solidData.Triangles {
 		readErr = readTriangleBinary(r, &solidData.Triangles[i])
 		if readErr != nil {
-			err = fmt.Errorf("While reading triangle no. %d at byte %d: %s", i, 84+i*50, readErr.Error())
+			err = fmt.Errorf("While reading triangle no. %d at byte %d: %s", i, binaryHeaderSize+i*binaryTriangleSize, readErr.Error())
 			return
 		}
 	}
@@ -39,10 +41,14 @@ func readAllBinary(r io.Reader, first6 []byte) (solid *Solid, err error) {
 	return
 }
 
+func triangleCountFromBinaryHeader(header []byte) uint32 {
+	return binary.LittleEndian.Uint32(header[binaryHeaderSize-4 : binaryHeaderSize])
+}
+
 func readTriangleBinary(r io.Reader, t *Triangle) error {
-	tbuf := make([]byte, 50)
+	tbuf := make([]byte, binaryTriangleSize)
 	n := 0
-	for n < 50 {
+	for n < binaryTriangleSize {
 		l, readErr := r.Read(tbuf[n:])
 		n += l
 		if readErr != nil {

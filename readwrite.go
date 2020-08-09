@@ -5,19 +5,16 @@ package stl
 
 import (
 	"bufio"
-	"bytes"
 	"errors"
 	"io"
 	"os"
 )
 
 // ErrIncompleteBinaryHeader is used when reading binary STL files with incomplete header.
-var ErrIncompleteBinaryHeader = errors.New("Incomplete STL binary header, 84 bytes expected")
+var ErrIncompleteBinaryHeader = errors.New("incomplete STL binary header, 84 bytes expected")
 
 // ErrUnexpectedEOF is used by ReadFile and ReadAll to signify an incomplete file.
-var ErrUnexpectedEOF = errors.New("Unexpected end of file")
-
-var asciiStart = []byte("solid ")
+var ErrUnexpectedEOF = errors.New("unexpected end of file")
 
 // ReadFile reads the contents of a file into a new Solid object. The file
 // can be either in STL ASCII format, beginning with "solid ", or in
@@ -30,57 +27,59 @@ func ReadFile(filename string) (solid *Solid, err error) {
 	}
 	defer file.Close()
 
-	return ReadAll(bufio.NewReader(file))
+	return ReadAll(file)
 }
 
 // ReadAll reads the contents of a file into a new Solid object. The file
 // can be either in STL ASCII format, beginning with "solid ", or in
 // STL binary format, beginning with a 84 byte header. Because of this,
 // the file pointer has to be at the beginning of the file.
-func ReadAll(r io.Reader) (solid *Solid, err error) {
-	isASCII, first6, isASCIIErr := isASCIIFile(r)
-	if isASCIIErr != nil {
-		err = isASCIIErr
+func ReadAll(r io.ReadSeeker) (solid *Solid, err error) {
+	isBinary, err := isBinaryFile(r)
+	if err != nil {
+		return
+	}
+	if _, err = r.Seek(0, io.SeekStart); err != nil {
 		return
 	}
 
-	if isASCII {
+	if isBinary {
+		solid, err = readAllBinary(r)
+		// if read was successful, solid.IsAscii will be initialized to false
+	} else {
 		solid, err = readAllASCII(r)
 		if solid != nil {
 			solid.IsAscii = true
 		}
-	} else {
-		solid, err = readAllBinary(r, first6)
-		// if read was successful, solid.IsAscii will be initialized to false
 	}
 
 	return
 }
 
-// isASCIIFile detects if the file is in STL ASCII format or if it is binary otherwise.
-// It will consume 6 bytes and return them.
-func isASCIIFile(r io.Reader) (isASCII bool, first6 []byte, err error) {
-	first6 = make([]byte, 6) // "solid "
-	isASCII = false
-	n, readErr := r.Read(first6)
-	if n != 6 || readErr == io.EOF {
-		err = ErrUnexpectedEOF
-		return
-	} else if readErr != nil {
-		err = readErr
+// isBinaryFile returns true if the seekable stream tests as a binary file by
+// matching triangle count (in header) and file size
+func isBinaryFile(r io.ReadSeeker) (isBinary bool, err error) {
+	var header [binaryHeaderSize]byte
+	_, err = r.Read(header[:])
+	if err != nil {
+		if err == io.EOF { // too short to meet spec
+			err = nil
+		}
 		return
 	}
-
-	if bytes.Equal(first6, asciiStart) {
-		isASCII = true
+	triangleCount := triangleCountFromBinaryHeader(header[:])
+	expectedFileLength := int64(triangleCount)*binaryTriangleSize + binaryHeaderSize
+	actualFileLength, err := r.Seek(0, io.SeekEnd)
+	if err != nil {
+		return
 	}
-
+	isBinary = expectedFileLength == actualFileLength
 	return
 }
 
 // WriteFile creates file with name filename and write contents of this Solid.
 // Shorthand for os.Create and Solid.WriteAll
-func (solid *Solid) WriteFile(filename string) error {
+func (s *Solid) WriteFile(filename string) error {
 	file, createErr := os.Create(filename)
 	if createErr != nil {
 		return createErr
@@ -88,7 +87,7 @@ func (solid *Solid) WriteFile(filename string) error {
 	defer file.Close()
 
 	bufWriter := bufio.NewWriter(file)
-	err := solid.WriteAll(bufWriter)
+	err := s.WriteAll(bufWriter)
 	if err != nil {
 		return err
 	}
@@ -99,11 +98,11 @@ func (solid *Solid) WriteFile(filename string) error {
 // the STL ASCII format, or the STL binary format is used. If IsAscii
 // is false, and the binary format is used, solid.Name will be used for
 // the header, if solid.BinaryHeader is empty.
-func (solid *Solid) WriteAll(w io.Writer) error {
-	if solid.IsAscii {
-		return writeSolidASCII(w, solid)
+func (s *Solid) WriteAll(w io.Writer) error {
+	if s.IsAscii {
+		return writeSolidASCII(w, s)
 	}
-	return writeSolidBinary(w, solid)
+	return writeSolidBinary(w, s)
 }
 
 // Extracts an ASCII string from a byte slice. Reads all characters

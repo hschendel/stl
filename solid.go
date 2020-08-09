@@ -32,19 +32,19 @@ type SolidMeasure struct {
 }
 
 // Measure the dimensions of a solid in its own units
-func (solid *Solid) Measure() SolidMeasure {
+func (s *Solid) Measure() SolidMeasure {
 	var measure SolidMeasure
 
-	if len(solid.Triangles) == 0 {
+	if len(s.Triangles) == 0 {
 		return measure
 	}
 
 	// initialize with real values
-	a := &solid.Triangles[0].Vertices[0]
+	a := &s.Triangles[0].Vertices[0]
 	measure.Min = *a
 	measure.Max = *a
 
-	for _, triangle := range solid.Triangles {
+	for _, triangle := range s.Triangles {
 		for d := 0; d < 3; d++ {
 			measure.Min[d] = min4(measure.Min[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
 			measure.Max[d] = max4(measure.Max[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
@@ -58,11 +58,11 @@ func (solid *Solid) Measure() SolidMeasure {
 
 // Transform applies a 4x4 transformation matrix to every vertex
 // and recalculates the normal for every triangle
-func (solid *Solid) Transform(transformationMatrix *Mat4) {
-	l := len(solid.Triangles)
+func (s *Solid) Transform(transformationMatrix *Mat4) {
+	l := len(s.Triangles)
 	for i := 0; i < l; i++ {
 		// Tried go-routines here. Was slower even with large solids.
-		solid.Triangles[i].transform(transformationMatrix)
+		s.Triangles[i].transform(transformationMatrix)
 	}
 }
 
@@ -72,27 +72,27 @@ func (solid *Solid) Transform(transformationMatrix *Mat4) {
 // are applied successively to a solid, and the transformation matrix
 // is not calculated beforehand. Before writing this solid to disk then,
 // RecalculateNormals() should be called.
-func (solid *Solid) TransformNR(transformationMatrix *Mat4) {
-	l := len(solid.Triangles)
+func (s *Solid) TransformNR(transformationMatrix *Mat4) {
+	l := len(s.Triangles)
 	for i := 0; i < l; i++ {
 		// Tried go-routines here. Was slower even with large solids.
-		solid.Triangles[i].transformNR(transformationMatrix)
+		s.Triangles[i].transformNR(transformationMatrix)
 	}
 }
 
 // RecalculateNormals recalculates all triangle normal vectors from the vertices.
 // Can be used after multiple transformations using the TransformNR method
 // that does not recalculate the normal vectors.
-func (solid *Solid) RecalculateNormals() {
-	for i := 0; i < len(solid.Triangles); i++ {
-		solid.Triangles[i].recalculateNormal()
+func (s *Solid) RecalculateNormals() {
+	for i := 0; i < len(s.Triangles); i++ {
+		s.Triangles[i].recalculateNormal()
 	}
 }
 
 // Scale all vertex coordinates by scalar factor
-func (solid *Solid) Scale(factor float64) {
-	for i := 0; i < len(solid.Triangles); i++ {
-		t := &solid.Triangles[i]
+func (s *Solid) Scale(factor float64) {
+	for i := 0; i < len(s.Triangles); i++ {
+		t := &s.Triangles[i]
 		for v := 0; v < 3; v++ {
 			for d := 0; d < 3; d++ {
 				t.Vertices[v][d] = float32(factor * float64(t.Vertices[v][d]))
@@ -102,9 +102,9 @@ func (solid *Solid) Scale(factor float64) {
 }
 
 // Stretch scales all vertex coordinates by different factors per axis
-func (solid *Solid) Stretch(vec Vec3) {
-	for i := 0; i < len(solid.Triangles); i++ {
-		t := &solid.Triangles[i]
+func (s *Solid) Stretch(vec Vec3) {
+	for i := 0; i < len(s.Triangles); i++ {
+		t := &s.Triangles[i]
 		for v := 0; v < 3; v++ {
 			for d := 0; d < 3; d++ {
 				t.Vertices[v][d] = float32(float64(vec[d]) * float64(t.Vertices[v][d]))
@@ -117,11 +117,11 @@ func (solid *Solid) Stretch(vec Vec3) {
 // ScaleLinearDowntoSizeBox works like this: if the solid does not fit into size box
 // defined by sizeBox, it is scaled down accordingly. It is not scaled up, if it is
 // smaller than sizeBox. All sizes have to be > 0.
-func (solid *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
+func (s *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
 	if sizeBox[0] <= 0 || sizeBox[1] <= 0 || sizeBox[2] <= 0 {
 		panic("Not all values in sizeBox are > 0!")
 	}
-	measure := solid.Measure()
+	measure := s.Measure()
 	factor := float64(1)
 	for d := 0; d < 3; d++ {
 		if measure.Len[d] > sizeBox[d] {
@@ -132,14 +132,14 @@ func (solid *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
 		}
 	}
 	if factor != float64(1) {
-		solid.Scale(factor)
+		s.Scale(factor)
 	}
 }
 
 // Translate (i.e. move) the solid by vec
-func (solid *Solid) Translate(vec Vec3) {
-	for i := 0; i < len(solid.Triangles); i++ {
-		t := &solid.Triangles[i]
+func (s *Solid) Translate(vec Vec3) {
+	for i := 0; i < len(s.Triangles); i++ {
+		t := &s.Triangles[i]
 		for v := 0; v < 3; v++ {
 			for d := 0; d < 3; d++ {
 				t.Vertices[v][d] += vec[d]
@@ -150,8 +150,8 @@ func (solid *Solid) Translate(vec Vec3) {
 
 // IsInPositive is true if every vertex in this solid is within the positive octant, i.e.
 // all coordinate values are positive or 0.
-func (solid *Solid) IsInPositive() bool {
-	measure := solid.Measure()
+func (s *Solid) IsInPositive() bool {
+	measure := s.Measure()
 	for dim := 0; dim < 3; dim++ {
 		if measure.Min[dim] < 0 {
 			return false
@@ -163,8 +163,8 @@ func (solid *Solid) IsInPositive() bool {
 // MoveToPositive moves the solid into the positive octant if necessary, as prescribed by
 // the original STL format spec. Some applications tolerate negative coordinates. This also
 // makes sense, as the origin is a perfect reference point for rotations.
-func (solid *Solid) MoveToPositive() {
-	measure := solid.Measure()
+func (s *Solid) MoveToPositive() {
+	measure := s.Measure()
 	var translationVector Vec3
 	for dim := 0; dim < 3; dim++ {
 		if measure.Min[dim] < 0 {
@@ -173,15 +173,15 @@ func (solid *Solid) MoveToPositive() {
 	}
 	// only apply vector if non-zero
 	if translationVector != vec3Zero {
-		solid.Translate(translationVector)
+		s.Translate(translationVector)
 	}
 }
 
 // scaleDim scales only dimension dim of solid by scalar factor.
-func (solid *Solid) scaleDim(factor float64, dim int) {
-	for i := 0; i < len(solid.Triangles); i++ {
+func (s *Solid) scaleDim(factor float64, dim int) {
+	for i := 0; i < len(s.Triangles); i++ {
 		for v := 0; v < 3; v++ {
-			solid.Triangles[i].Vertices[v][dim] = float32(factor * float64(solid.Triangles[i].Vertices[v][dim]))
+			s.Triangles[i].Vertices[v][dim] = float32(factor * float64(s.Triangles[i].Vertices[v][dim]))
 		}
 	}
 }
@@ -190,11 +190,11 @@ func (solid *Solid) scaleDim(factor float64, dim int) {
 // by a point pos on the axis and a direction vector dir. This
 // example would rotate the solid by 90 degree around the z-axis:
 //    stl.Rotate(stl.Vec3{0,0,0}, stl.Vec3{0,0,1}, stl.HalfPi)
-func (solid *Solid) Rotate(pos, dir Vec3, angle float64) {
+func (s *Solid) Rotate(pos, dir Vec3, angle float64) {
 	var rotationMatrix Mat4
 	RotationMatrix(pos, dir, angle, &rotationMatrix)
 	// Apply rotationMatrix and recalculate normal vectors
-	solid.Transform(&rotationMatrix)
+	s.Transform(&rotationMatrix)
 }
 
 // TriangleErrors represent the errors found in a single triangle.
@@ -313,11 +313,11 @@ const normalAngleTolerance = HalfPi
 // Validate looks for triangles that are really lines or dots, and for edges that
 // violate the vertex-to-vertex rule. Returns a map of errors by triangle
 // index that could be used to print out an error report.
-func (solid *Solid) Validate() map[int]*TriangleErrors {
+func (s *Solid) Validate() map[int]*TriangleErrors {
 	// Build up lookup from edge to triangle
 	e := newEdgeLookup()
-	for i := range solid.Triangles {
-		t := &solid.Triangles[i]
+	for i := range s.Triangles {
+		t := &s.Triangles[i]
 		for vertex1 := 0; vertex1 < 3; vertex1++ {
 			vertex2 := (vertex1 + 1) % 3
 			e.InsertEdge(i, t.Vertices[vertex1], t.Vertices[vertex2])
@@ -329,8 +329,8 @@ func (solid *Solid) Validate() map[int]*TriangleErrors {
 	// and that the same edge is not used by another triangle.
 	triangleErrors := make(triangleErrorsMap)
 
-	for i := range solid.Triangles {
-		t := &solid.Triangles[i]
+	for i := range s.Triangles {
+		t := &s.Triangles[i]
 		// check for equal vertices
 		if t.hasEqualVertices() {
 			triangleErrors.item(i).HasEqualVertices = true
