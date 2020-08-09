@@ -45,6 +45,17 @@ solid.Scale(25.4) // Convert from Inches to mm
 errWrite := solid.WriteFile(outputFilename)
 ```
 
+Stream Processing STL Files
+---------------------------
+
+You can implement the `stl.Writer` interface to directly write into your own data structures.
+This way you can use the `stl.CopyFile` and `stl.CopyAll` functions.
+
+```go
+var ownData ownDataStructure // implements stl.Writer
+err := stl.CopyFile("somefile.stl", &ownData)
+```
+
 Further Reading
 ---------------
 

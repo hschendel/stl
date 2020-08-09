@@ -57,5 +57,14 @@ you get numerical errors. So you should expect a vertex being
 rotated for 360° not to end up at exactly the original coordinates, but instead
 just very close to them. As the error is usually far smaller than the available
 precision of 3D printing applications, this is not an issue in most cases.
+
+Stream Processing
+
+You can implement the Writer interface to directly write into your own data structures.
+This way you can use the CopyFile and CopyAll functions.
+
+	var ownData ownDataStructure // implements stl.Writer
+	err := stl.CopyFile("somefile.stl", &ownData)
+
 */
 package stl
