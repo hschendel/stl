@@ -98,19 +98,23 @@ func isBinaryFile(r io.ReadSeeker) (isBinary bool, err error) {
 
 // WriteFile creates file with name filename and write contents of this Solid.
 // Shorthand for os.Create and Solid.WriteAll
-func (s *Solid) WriteFile(filename string) error {
-	file, createErr := os.Create(filename)
-	if createErr != nil {
-		return createErr
-	}
-	defer file.Close()
-
-	bufWriter := bufio.NewWriter(file)
-	err := s.WriteAll(bufWriter)
+func (s *Solid) WriteFile(filename string) (err error) {
+	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
-	return bufWriter.Flush()
+
+	bufWriter := bufio.NewWriter(file)
+	err = s.WriteAll(bufWriter)
+	flushErr := bufWriter.Flush()
+	closeErr := file.Close()
+	if err == nil {
+		err = flushErr
+	}
+	if err == nil {
+		err = closeErr
+	}
+	return
 }
 
 // WriteAll writes the contents of this solid to an io.Writer. Depending on solid.IsAscii

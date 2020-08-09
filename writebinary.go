@@ -11,10 +11,10 @@ import (
 // Write solid in binary STL into an io.Writer.
 // Does not check whether len(solid.Triangles) fits into uint32.
 func writeSolidBinary(w io.Writer, solid *Solid) error {
-	headerBuf := make([]byte, 84)
+	headerBuf := make([]byte, binaryHeaderSize)
 	if solid.BinaryHeader == nil {
 		// use name if no binary header set
-		copy(headerBuf, []byte(solid.Name))
+		copy(headerBuf, solid.Name)
 	} else {
 		copy(headerBuf, solid.BinaryHeader)
 	}
@@ -57,10 +57,10 @@ func encodePoint(buf []byte, offset *int, pt *Vec3) {
 func encodeFloat32(buf []byte, offset *int, f float32) {
 	u32 := math.Float32bits(f)
 	binary.LittleEndian.PutUint32(buf[*offset:(*offset)+4], u32)
-	(*offset) += 4
+	*offset += 4
 }
 
 func encodeUint16(buf []byte, offset *int, u uint16) {
 	binary.LittleEndian.PutUint16(buf[*offset:(*offset)+2], u)
-	(*offset) += 2
+	*offset += 2
 }
