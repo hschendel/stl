@@ -5,11 +5,12 @@ package stl
 import (
 	"fmt"
 	"io"
+	"strings"
 )
 
 func writeSolidASCII(w io.Writer, solid *Solid) error {
 	var writeErr error
-	_, writeErr = w.Write([]byte("solid " + solid.Name))
+	_, writeErr = w.Write([]byte("solid " + escapeName(solid.Name)))
 	if writeErr != nil {
 		return writeErr
 	}
@@ -24,6 +25,12 @@ func writeSolidASCII(w io.Writer, solid *Solid) error {
 		return writeErr
 	}
 	return nil
+}
+
+func escapeName(name string) string {
+	name = strings.ReplaceAll(name, "\r", "\\r")
+	name = strings.ReplaceAll(name, "\n", "\\n")
+	return name
 }
 
 func writeTriangleASCII(w io.Writer, t *Triangle) error {
