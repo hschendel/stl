@@ -13,12 +13,9 @@ import (
 	"strconv"
 )
 
-func readAllASCII(r io.Reader) (solid *Solid, err error) {
-	var sd Solid
+func readAllASCII(r io.Reader, sw Writer) (err error) {
 	p := newParser(r)
-	if p.Parse(&sd) {
-		solid = &sd
-	} else {
+	if !p.Parse(sw) {
 		err = errors.New(p.ErrorText)
 	}
 	return
@@ -64,19 +61,17 @@ const (
 )
 
 var identRegexps = map[int]*regexp.Regexp{
-	idSolid:                regexp.MustCompile("^solid$"),
-	idFacet:                regexp.MustCompile("^facet$"),
-	idNormal:               regexp.MustCompile("^normal$"),
-	idOuter:                regexp.MustCompile("^outer$"),
-	idLoop:                 regexp.MustCompile("^loop$"),
-	idVertex:               regexp.MustCompile("^vertex$"),
-	idEndloop:              regexp.MustCompile("^endloop$"),
-	idEndfacet:             regexp.MustCompile("^endfacet$"),
-	idEndsolid:             regexp.MustCompile("^endsolid$"),
-	(idFacet | idEndsolid): regexp.MustCompile(`^(facet|endsolid)$`),
+	idSolid:              regexp.MustCompile("^solid$"),
+	idFacet:              regexp.MustCompile("^facet$"),
+	idNormal:             regexp.MustCompile("^normal$"),
+	idOuter:              regexp.MustCompile("^outer$"),
+	idLoop:               regexp.MustCompile("^loop$"),
+	idVertex:             regexp.MustCompile("^vertex$"),
+	idEndloop:            regexp.MustCompile("^endloop$"),
+	idEndfacet:           regexp.MustCompile("^endfacet$"),
+	idEndsolid:           regexp.MustCompile("^endsolid$"),
+	idFacet | idEndsolid: regexp.MustCompile(`^(facet|endsolid)$`),
 }
-
-var reFloat = regexp.MustCompile(`^[+-]?\d+(\.\d+)?([eE][+-]?\d+)?$`)
 
 var idents = map[int]string{
 	idSolid:    "solid",
@@ -90,14 +85,12 @@ var idents = map[int]string{
 	idEndsolid: "endsolid",
 }
 
-func (p *parser) Parse(solid *Solid) bool {
+func (p *parser) Parse(sw Writer) bool {
 	if p.eof {
 		p.HeaderError = true
 		p.addError("File is empty")
 	} else {
-		p.HeaderError = !p.parseASCIIHeaderLine(solid)
-
-		triangles := list.New()
+		p.HeaderError = !p.parseASCIIHeaderLine(sw)
 	TriangleLoop:
 		for !p.eof && !p.isCurrentTokenIdent(idEndsolid) {
 			if !p.isCurrentTokenIdent(idFacet) {
@@ -110,16 +103,11 @@ func (p *parser) Parse(solid *Solid) bool {
 
 			var t Triangle
 			if p.parseFacet(&t) {
-				triangles.PushBack(&t)
+				sw.AppendTriangle(t)
 			} else {
 				p.TrianglesSkipped = true
 				p.skipToToken(idFacet | idEndsolid)
 			}
-		}
-		solid.Triangles = make([]Triangle, triangles.Len())
-		for i, e := 0, triangles.Front(); e != nil; e = e.Next() {
-			solid.Triangles[i] = *((e.Value).(*Triangle))
-			i++
 		}
 	}
 
@@ -142,7 +130,7 @@ func (p *parser) generateErrorText() {
 
 var expectedASCIIHeaderPrefix = []byte("solid ")
 
-func (p *parser) parseASCIIHeaderLine(solid *Solid) bool {
+func (p *parser) parseASCIIHeaderLine(sw Writer) bool {
 	var success bool
 	if p.eof {
 		p.addError("unexpected end of file")
@@ -152,7 +140,8 @@ func (p *parser) parseASCIIHeaderLine(solid *Solid) bool {
 			p.addError("ASCII header must start with \"solid \"")
 			success = false
 		} else {
-			solid.Name = extractASCIIString(p.currentLine[len(expectedASCIIHeaderPrefix):])
+			name := extractASCIIString(p.currentLine[len(expectedASCIIHeaderPrefix):])
+			sw.SetName(name)
 			success = true
 		}
 	}

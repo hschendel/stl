@@ -9,14 +9,54 @@ type Solid struct {
 	// only used in binary format
 	BinaryHeader []byte
 
+	// Name is the solid's name
 	Name string
 
+	// Triangles represent the solid's shape.
 	Triangles []Triangle
 
-	// true, if this Solid was read from an ASCII file, and false, if read
+	// IsAscii is true, if this Solid was read from an ASCII file, and false, if read
 	// from a binary file. Also used to determine the format when writing
 	// to a file.
 	IsAscii bool
+}
+
+// SetName sets the solid's name
+func (s *Solid) SetName(name string) {
+	s.Name = name
+}
+
+// SetName sets the binary header optionally used when writing to binary STL
+func (s *Solid) SetBinaryHeader(header []byte) {
+	s.BinaryHeader = header
+}
+
+// SetASCII sets the IsAscii flag that indicates whether the solid was read from ASCII STL
+func (s *Solid) SetASCII(isASCII bool) {
+	s.IsAscii = isASCII
+}
+
+// SetTriangleCount ensures that cap(s.Triangles) >= n, and len(s.Triangles) <= n, possibly deleting triangles starting at index n
+func (s *Solid) SetTriangleCount(n uint32) {
+	l := uint32(len(s.Triangles))
+	c := uint32(cap(s.Triangles))
+	if n < l {
+		s.Triangles = s.Triangles[:n]
+		return
+	}
+	if n <= c {
+		return
+	}
+	oldTriangles := s.Triangles
+	s.Triangles = make([]Triangle, l, n)
+	if l > 0 {
+		copy(s.Triangles[:l], oldTriangles)
+	}
+}
+
+// AppendTriangle appends the given triangle to s.Triangles
+func (s *Solid) AppendTriangle(t Triangle) {
+	s.Triangles = append(s.Triangles, t)
 }
 
 // SolidMeasure is used to store the result of Solid.Measure()
@@ -260,12 +300,12 @@ func (eer *EdgeError) HasNoCounterEdge() bool {
 // For every edge described by two points this data structure stores
 // the set of indices of triangles containing this edge.
 type edgeLookup struct {
-	edgeToTriangles map[[2]Vec3](map[int]bool)
+	edgeToTriangles map[[2]Vec3]map[int]bool
 }
 
 func newEdgeLookup() *edgeLookup {
 	var l edgeLookup
-	l.edgeToTriangles = make(map[[2]Vec3](map[int]bool))
+	l.edgeToTriangles = make(map[[2]Vec3]map[int]bool)
 	return &l
 }
 

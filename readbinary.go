@@ -12,7 +12,7 @@ import (
 const binaryHeaderSize = 84
 const binaryTriangleSize = 50
 
-func readAllBinary(r io.Reader) (solid *Solid, err error) {
+func readAllBinary(r io.Reader, sw Writer) (err error) {
 	var header [binaryHeaderSize]byte
 	n, readErr := r.Read(header[:])
 	if readErr == io.EOF && n != binaryHeaderSize {
@@ -23,21 +23,21 @@ func readAllBinary(r io.Reader) (solid *Solid, err error) {
 		return
 	}
 
-	var solidData Solid
-	solidData.BinaryHeader = header[0 : binaryHeaderSize-4]
-	solidData.Name = extractASCIIString(solidData.BinaryHeader)
+	sw.SetBinaryHeader(header[0 : binaryHeaderSize-4])
+	sw.SetName(extractASCIIString(header[0 : binaryHeaderSize-4]))
 	triangleCount := triangleCountFromBinaryHeader(header[:])
-	solidData.Triangles = make([]Triangle, triangleCount)
+	sw.SetTriangleCount(triangleCount)
 
-	for i := range solidData.Triangles {
-		readErr = readTriangleBinary(r, &solidData.Triangles[i])
+	var t Triangle
+	for i := uint32(0); i < triangleCount; i++ {
+		readErr = readTriangleBinary(r, &t)
 		if readErr != nil {
 			err = fmt.Errorf("While reading triangle no. %d at byte %d: %s", i, binaryHeaderSize+i*binaryTriangleSize, readErr.Error())
 			return
 		}
+		sw.AppendTriangle(t)
 	}
 
-	solid = &solidData
 	return
 }
 

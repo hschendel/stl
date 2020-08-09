@@ -20,14 +20,12 @@ var ErrUnexpectedEOF = errors.New("unexpected end of file")
 // can be either in STL ASCII format, beginning with "solid ", or in
 // STL binary format, beginning with a 84 byte header. Shorthand for os.Open and ReadAll
 func ReadFile(filename string) (solid *Solid, err error) {
-	file, openErr := os.Open(filename)
-	if openErr != nil {
-		err = openErr
-		return
+	var s Solid
+	err = CopyFile(filename, &s)
+	if err == nil {
+		solid = &s
 	}
-	defer file.Close()
-
-	return ReadAll(file)
+	return
 }
 
 // ReadAll reads the contents of a file into a new Solid object. The file
@@ -35,6 +33,29 @@ func ReadFile(filename string) (solid *Solid, err error) {
 // STL binary format, beginning with a 84 byte header. Because of this,
 // the file pointer has to be at the beginning of the file.
 func ReadAll(r io.ReadSeeker) (solid *Solid, err error) {
+	var s Solid
+	err = CopyAll(r, &s)
+	if err == nil {
+		solid = &s
+	}
+	return
+}
+
+func CopyFile(filename string, sw Writer) (err error) {
+	file, openErr := os.Open(filename)
+	if openErr != nil {
+		err = openErr
+		return
+	}
+	err = CopyAll(file, sw)
+	closeErr := file.Close()
+	if err == nil {
+		err = closeErr
+	}
+	return
+}
+
+func CopyAll(r io.ReadSeeker, sw Writer) (err error) {
 	isBinary, err := isBinaryFile(r)
 	if err != nil {
 		return
@@ -44,13 +65,11 @@ func ReadAll(r io.ReadSeeker) (solid *Solid, err error) {
 	}
 
 	if isBinary {
-		solid, err = readAllBinary(r)
-		// if read was successful, solid.IsAscii will be initialized to false
+		sw.SetASCII(false)
+		err = readAllBinary(r, sw)
 	} else {
-		solid, err = readAllASCII(r)
-		if solid != nil {
-			solid.IsAscii = true
-		}
+		sw.SetASCII(true)
+		err = readAllASCII(r, sw)
 	}
 
 	return
