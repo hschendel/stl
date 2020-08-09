@@ -59,7 +59,7 @@ err := stl.CopyFile("somefile.stl", &ownData)
 Further Reading
 ---------------
 
-The [package godoc documentation](https://godoc.org/github.com/hschendel/stl)
+The [package godoc documentation](https://pkg.go.dev/github.com/hschendel/stl)
 should be helpful. Or just start a local godoc
 server using this command:
 
