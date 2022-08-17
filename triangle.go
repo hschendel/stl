@@ -26,9 +26,9 @@ type Triangle struct {
 func (t *Triangle) calculateNormal() Vec3 {
 	// The normal is calculated by normalizing the result of
 	// (V0-V2) x (V1-V2)
-	return t.Vertices[0].diff(t.Vertices[2]).
-		cross(t.Vertices[1].diff(t.Vertices[2])).
-		unitVec()
+	return t.Vertices[0].Diff(t.Vertices[2]).
+		Cross(t.Vertices[1].Diff(t.Vertices[2])).
+		UnitVec3()
 }
 
 // Recalculate the redundant normal vector using the right hand rule
@@ -52,7 +52,7 @@ func (t *Triangle) transformNR(transformationMatrix *Mat4) {
 }
 
 // Returns true if at least two vertices are exactly equal, meaning
-// this is a line, or even a dot.
+// this is a line, or even a Dot.
 func (t *Triangle) hasEqualVertices() bool {
 	return t.Vertices[0] == t.Vertices[1] ||
 		t.Vertices[0] == t.Vertices[2] ||
@@ -60,8 +60,8 @@ func (t *Triangle) hasEqualVertices() bool {
 }
 
 // Checks if normal matches vertices using right hand rule, with
-// numerical tolerance for angle between them given by tol in radians.
+// numerical tolerance for Angle between them given by tol in radians.
 func (t *Triangle) checkNormal(tol float64) bool {
 	calculatedNormal := t.calculateNormal()
-	return t.Normal.angle(calculatedNormal) < tol
+	return t.Normal.Angle(calculatedNormal) < tol
 }

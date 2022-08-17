@@ -89,9 +89,9 @@ func (s *Solid) sameOrderAlmostEqual(o *Solid) bool {
 }
 
 func (t *Triangle) sameOrderAlmostEqual(o *Triangle, tol float32) bool {
-	return t.Normal.almostEqual(o.Normal, tol) &&
-		t.Vertices[0].almostEqual(o.Vertices[0], tol) &&
-		t.Vertices[1].almostEqual(o.Vertices[1], tol) &&
-		t.Vertices[2].almostEqual(o.Vertices[2], tol) &&
+	return t.Normal.AlmostEqual(o.Normal, tol) &&
+		t.Vertices[0].AlmostEqual(o.Vertices[0], tol) &&
+		t.Vertices[1].AlmostEqual(o.Vertices[1], tol) &&
+		t.Vertices[2].AlmostEqual(o.Vertices[2], tol) &&
 		t.Attributes == o.Attributes
 }

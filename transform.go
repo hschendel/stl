@@ -6,11 +6,11 @@ import (
 	"math"
 )
 
-// RotationMatrix calculates a 4x4 rotation matrix for a rotation of angle in radians
+// RotationMatrix calculates a 4x4 rotation matrix for a rotation of Angle in radians
 // around a rotation axis defined by a point on it (pos) and its direction (dir).
 // The result is written into *rotationMatrix.
 func RotationMatrix(pos Vec3, dir Vec3, angle float64, rotationMatrix *Mat4) {
-	dirN := dir.unitVec()
+	dirN := dir.UnitVec3()
 
 	s := math.Sin(angle)
 	c := math.Cos(angle)

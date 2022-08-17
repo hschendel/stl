@@ -91,7 +91,7 @@ func (s *Solid) Measure() SolidMeasure {
 		}
 	}
 
-	measure.Len = measure.Max.diff(measure.Min)
+	measure.Len = measure.Max.Diff(measure.Min)
 
 	return measure
 }
@@ -226,10 +226,11 @@ func (s *Solid) scaleDim(factor float64, dim int) {
 	}
 }
 
-// Rotate the solid by angle radians around a rotation axis defined
+// Rotate the solid by Angle radians around a rotation axis defined
 // by a point pos on the axis and a direction vector dir. This
 // example would rotate the solid by 90 degree around the z-axis:
-//    stl.Rotate(stl.Vec3{0,0,0}, stl.Vec3{0,0,1}, stl.HalfPi)
+//
+//	stl.Rotate(stl.Vec3{0,0,0}, stl.Vec3{0,0,1}, stl.HalfPi)
 func (s *Solid) Rotate(pos, dir Vec3, angle float64) {
 	var rotationMatrix Mat4
 	RotationMatrix(pos, dir, angle, &rotationMatrix)
