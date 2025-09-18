@@ -3,7 +3,6 @@ package stl
 // Tests for reading and writing STL files.
 
 import (
-	"io/ioutil"
 	"os"
 	"strconv"
 	"testing"
@@ -132,7 +131,7 @@ func TestReadAll_Binary(t *testing.T) {
 }
 
 func TestWriteFile_Ascii(t *testing.T) {
-	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
+	tmpDirName, tmpErr := os.MkdirTemp(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		t.Fatal(tmpErr.Error())
 	}
@@ -153,7 +152,7 @@ func TestWriteFile_Ascii(t *testing.T) {
 
 	if !eq {
 		t.Log("Generated file:")
-		data, readErr := ioutil.ReadFile(tmpFileName)
+		data, readErr := os.ReadFile(tmpFileName)
 		if readErr != nil {
 			t.Fatal(readErr)
 		}
@@ -163,7 +162,7 @@ func TestWriteFile_Ascii(t *testing.T) {
 }
 
 func BenchmarkWriteSmallFile_ASCII(b *testing.B) {
-	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
+	tmpDirName, tmpErr := os.MkdirTemp(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		b.Fatal(tmpErr.Error())
 	}
@@ -184,7 +183,7 @@ func BenchmarkWriteSmallFile_ASCII(b *testing.B) {
 }
 
 func TestWriteFile_Binary(t *testing.T) {
-	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
+	tmpDirName, tmpErr := os.MkdirTemp(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		t.Fatal(tmpErr.Error())
 	}
@@ -205,7 +204,7 @@ func TestWriteFile_Binary(t *testing.T) {
 
 	if !eq {
 		t.Log("Generated file:")
-		data, readErr := ioutil.ReadFile(tmpFileName)
+		data, readErr := os.ReadFile(tmpFileName)
 		if readErr != nil {
 			t.Fatal(readErr)
 		}
@@ -215,7 +214,7 @@ func TestWriteFile_Binary(t *testing.T) {
 }
 
 func BenchmarkWriteSmallFile_Binary(b *testing.B) {
-	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
+	tmpDirName, tmpErr := os.MkdirTemp(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		b.Fatal(tmpErr.Error())
 	}
@@ -238,7 +237,7 @@ func BenchmarkWriteSmallFile_Binary(b *testing.B) {
 // Does assume ReadFile to work correctly
 func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 	b.StopTimer()
-	tmpDirName, tmpErr := ioutil.TempDir(os.TempDir(), "stl_test")
+	tmpDirName, tmpErr := os.MkdirTemp(os.TempDir(), "stl_test")
 	if tmpErr != nil {
 		b.Fatal(tmpErr)
 	}

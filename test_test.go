@@ -5,7 +5,7 @@ package stl
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
@@ -58,12 +58,12 @@ func TestSolidSameOrderEqual(t *testing.T) {
 }
 
 func cmpFiles(filename1, filename2 string) (eq bool, err error) {
-	data1, err1 := ioutil.ReadFile(filename1)
+	data1, err1 := os.ReadFile(filename1)
 	if err1 != nil {
 		err = err1
 		return
 	}
-	data2, err2 := ioutil.ReadFile(filename2)
+	data2, err2 := os.ReadFile(filename2)
 	if err2 != nil {
 		err = err2
 		return
