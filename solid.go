@@ -86,8 +86,8 @@ func (s *Solid) Measure() SolidMeasure {
 
 	for _, triangle := range s.Triangles {
 		for d := 0; d < 3; d++ {
-			measure.Min[d] = min4(measure.Min[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
-			measure.Max[d] = max4(measure.Max[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
+			measure.Min[d] = min(measure.Min[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
+			measure.Max[d] = max(measure.Max[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
 		}
 	}
 
