@@ -1,5 +1,7 @@
 package stl
 
+import "slices"
+
 // This file provides the Solid data type that is a memory representation
 // of an STL file
 
@@ -26,7 +28,7 @@ func (s *Solid) SetName(name string) {
 	s.Name = name
 }
 
-// SetName sets the binary header optionally used when writing to binary STL
+// SetBinaryHeader sets the binary header optionally used when writing to binary STL
 func (s *Solid) SetBinaryHeader(header []byte) {
 	s.BinaryHeader = header
 }
@@ -39,19 +41,11 @@ func (s *Solid) SetASCII(isASCII bool) {
 // SetTriangleCount ensures that cap(s.Triangles) >= n, and len(s.Triangles) <= n, possibly deleting triangles starting at index n
 func (s *Solid) SetTriangleCount(n uint32) {
 	l := uint32(len(s.Triangles))
-	c := uint32(cap(s.Triangles))
 	if n < l {
 		s.Triangles = s.Triangles[:n]
 		return
 	}
-	if n <= c {
-		return
-	}
-	oldTriangles := s.Triangles
-	s.Triangles = make([]Triangle, l, n)
-	if l > 0 {
-		copy(s.Triangles[:l], oldTriangles)
-	}
+	s.Triangles = slices.Grow(s.Triangles, int(n-l))
 }
 
 // AppendTriangle appends the given triangle to s.Triangles
