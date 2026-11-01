@@ -74,10 +74,10 @@ func cmpFiles(filename1, filename2 string) (eq bool, err error) {
 
 // true if s and o are identical up to the 5th decimal
 func (s *Solid) sameOrderAlmostEqual(o *Solid) bool {
-	if !(bytes.Equal(s.BinaryHeader, o.BinaryHeader) &&
-		s.Name == o.Name &&
-		len(s.Triangles) == len(o.Triangles) &&
-		s.IsAscii == o.IsAscii) {
+	if !bytes.Equal(s.BinaryHeader, o.BinaryHeader) ||
+		s.Name != o.Name ||
+		len(s.Triangles) != len(o.Triangles) ||
+		s.IsAscii != o.IsAscii {
 		return false
 	}
 	for i, t := range s.Triangles {

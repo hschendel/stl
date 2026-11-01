@@ -1,6 +1,6 @@
 package stl
 
-// This file defines the Triangle data type, the building block for Solid
+// This file defines the Triangle data type, the building block for Solid.
 
 // Triangle represents single triangles used in Solid.Triangles. The vertices
 // have to be ordered counter-clockwise when looking at their outside surface.
@@ -22,7 +22,7 @@ type Triangle struct {
 	Attributes uint16
 }
 
-// Calculate the normal vector using the right hand rule
+// Calculate the normal vector using the right hand rule.
 func (t *Triangle) calculateNormal() Vec3 {
 	// The normal is calculated by normalizing the result of
 	// (V0-V2) x (V1-V2)
@@ -31,20 +31,20 @@ func (t *Triangle) calculateNormal() Vec3 {
 		UnitVec3()
 }
 
-// Recalculate the redundant normal vector using the right hand rule
+// Recalculate the redundant normal vector using the right hand rule.
 func (t *Triangle) recalculateNormal() {
 	t.Normal = t.calculateNormal()
 }
 
 // Applies a 4x4 transformation matrix to every vertex
-// and recalculates the normal
+// and recalculates the normal.
 func (t *Triangle) transform(transformationMatrix *Mat4) {
 	t.transformNR(transformationMatrix)
 	t.recalculateNormal()
 }
 
 // Applies a 4x4 transformation matrix to every vertex
-// without recalculating the normal afterwards
+// without recalculating the normal afterwards.
 func (t *Triangle) transformNR(transformationMatrix *Mat4) {
 	t.Vertices[0] = transformationMatrix.MultVec3(t.Vertices[0])
 	t.Vertices[1] = transformationMatrix.MultVec3(t.Vertices[1])

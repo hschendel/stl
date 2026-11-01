@@ -29,7 +29,7 @@ func readAllBinary(r io.Reader, sw Writer) (err error) {
 	sw.SetTriangleCount(triangleCount)
 
 	var t Triangle
-	for i := uint32(0); i < triangleCount; i++ {
+	for i := range triangleCount {
 		readErr = readTriangleBinary(r, &t)
 		if readErr != nil {
 			err = fmt.Errorf("while reading triangle no. %d at byte %d: %s", i, binaryHeaderSize+i*binaryTriangleSize, readErr.Error())

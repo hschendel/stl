@@ -79,7 +79,7 @@ func (s *Solid) Measure() SolidMeasure {
 	measure.Max = *a
 
 	for _, triangle := range s.Triangles {
-		for d := 0; d < 3; d++ {
+		for d := range 3 {
 			measure.Min[d] = min(measure.Min[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
 			measure.Max[d] = max(measure.Max[d], triangle.Vertices[0][d], triangle.Vertices[1][d], triangle.Vertices[2][d])
 		}
@@ -94,7 +94,7 @@ func (s *Solid) Measure() SolidMeasure {
 // and recalculates the normal for every triangle
 func (s *Solid) Transform(transformationMatrix *Mat4) {
 	l := len(s.Triangles)
-	for i := 0; i < l; i++ {
+	for i := range l {
 		// Tried go-routines here. Was slower even with large solids.
 		s.Triangles[i].transform(transformationMatrix)
 	}
@@ -108,7 +108,7 @@ func (s *Solid) Transform(transformationMatrix *Mat4) {
 // RecalculateNormals() should be called.
 func (s *Solid) TransformNR(transformationMatrix *Mat4) {
 	l := len(s.Triangles)
-	for i := 0; i < l; i++ {
+	for i := range l {
 		// Tried go-routines here. Was slower even with large solids.
 		s.Triangles[i].transformNR(transformationMatrix)
 	}
@@ -127,8 +127,8 @@ func (s *Solid) RecalculateNormals() {
 func (s *Solid) Scale(factor float64) {
 	for i := 0; i < len(s.Triangles); i++ {
 		t := &s.Triangles[i]
-		for v := 0; v < 3; v++ {
-			for d := 0; d < 3; d++ {
+		for v := range 3 {
+			for d := range 3 {
 				t.Vertices[v][d] = float32(factor * float64(t.Vertices[v][d]))
 			}
 		}
@@ -139,8 +139,8 @@ func (s *Solid) Scale(factor float64) {
 func (s *Solid) Stretch(vec Vec3) {
 	for i := 0; i < len(s.Triangles); i++ {
 		t := &s.Triangles[i]
-		for v := 0; v < 3; v++ {
-			for d := 0; d < 3; d++ {
+		for v := range 3 {
+			for d := range 3 {
 				t.Vertices[v][d] = float32(float64(vec[d]) * float64(t.Vertices[v][d]))
 			}
 		}
@@ -157,7 +157,7 @@ func (s *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
 	}
 	measure := s.Measure()
 	factor := float64(1)
-	for d := 0; d < 3; d++ {
+	for d := range 3 {
 		if measure.Len[d] > sizeBox[d] {
 			scale := float64(sizeBox[d]) / float64(measure.Len[d])
 			if scale < factor {
@@ -174,8 +174,8 @@ func (s *Solid) ScaleLinearDowntoSizeBox(sizeBox Vec3) {
 func (s *Solid) Translate(vec Vec3) {
 	for i := 0; i < len(s.Triangles); i++ {
 		t := &s.Triangles[i]
-		for v := 0; v < 3; v++ {
-			for d := 0; d < 3; d++ {
+		for v := range 3 {
+			for d := range 3 {
 				t.Vertices[v][d] += vec[d]
 			}
 		}
@@ -186,7 +186,7 @@ func (s *Solid) Translate(vec Vec3) {
 // all coordinate values are positive or 0.
 func (s *Solid) IsInPositive() bool {
 	measure := s.Measure()
-	for dim := 0; dim < 3; dim++ {
+	for dim := range 3 {
 		if measure.Min[dim] < 0 {
 			return false
 		}
@@ -200,7 +200,7 @@ func (s *Solid) IsInPositive() bool {
 func (s *Solid) MoveToPositive() {
 	measure := s.Measure()
 	var translationVector Vec3
-	for dim := 0; dim < 3; dim++ {
+	for dim := range 3 {
 		if measure.Min[dim] < 0 {
 			translationVector[dim] = -measure.Min[dim] // move smallest value to 0
 		}
@@ -208,15 +208,6 @@ func (s *Solid) MoveToPositive() {
 	// only apply vector if non-zero
 	if translationVector != vec3Zero {
 		s.Translate(translationVector)
-	}
-}
-
-// scaleDim scales only dimension dim of solid by scalar factor.
-func (s *Solid) scaleDim(factor float64, dim int) {
-	for i := 0; i < len(s.Triangles); i++ {
-		for v := 0; v < 3; v++ {
-			s.Triangles[i].Vertices[v][dim] = float32(factor * float64(s.Triangles[i].Vertices[v][dim]))
-		}
 	}
 }
 
@@ -238,7 +229,7 @@ type TriangleErrors struct {
 	// a line, or even a point, as opposed to a triangle.
 	HasEqualVertices bool
 
-	// NormalDoesNotMatch istrue if the normal vector does not match a normal calculated from the
+	// NormalDoesNotMatch is true if the normal vector does not match a normal calculated from the
 	// vertices in the right hand order, even allowing for an angular difference
 	// of < 90 degree.
 	NormalDoesNotMatch bool
@@ -304,7 +295,7 @@ func newEdgeLookup() *edgeLookup {
 	return &l
 }
 
-// Get the indices to Solid.Triangles of triangles containing
+// OtherTrianglesWithEdge gets the indices to Solid.Triangles of triangles containing
 // the edge v -> w, excluding a specific one denoted by i.
 func (l *edgeLookup) OtherTrianglesWithEdge(v, w Vec3, i int) []int {
 	triangleSet, found := l.edgeToTriangles[[2]Vec3{v, w}]
@@ -320,7 +311,7 @@ func (l *edgeLookup) OtherTrianglesWithEdge(v, w Vec3, i int) []int {
 	return r
 }
 
-// Put triangleIndex into the set of indices of triangles containing
+// InsertEdge puts triangleIndex into the set of indices of triangles containing
 // the edge v -> w.
 func (l *edgeLookup) InsertEdge(triangleIndex int, v, w Vec3) {
 	key := [2]Vec3{v, w}
@@ -353,7 +344,7 @@ func (s *Solid) Validate() map[int]*TriangleErrors {
 	e := newEdgeLookup()
 	for i := range s.Triangles {
 		t := &s.Triangles[i]
-		for vertex1 := 0; vertex1 < 3; vertex1++ {
+		for vertex1 := range 3 {
 			vertex2 := (vertex1 + 1) % 3
 			e.InsertEdge(i, t.Vertices[vertex1], t.Vertices[vertex2])
 		}
@@ -377,7 +368,7 @@ func (s *Solid) Validate() map[int]*TriangleErrors {
 		}
 
 		// loop through edges, vertex1 is also the index of the edge
-		for vertex1 := 0; vertex1 < 3; vertex1++ {
+		for vertex1 := range 3 {
 			vertex2 := (vertex1 + 1) % 3
 
 			// look for other triangles with same edge

@@ -12,14 +12,14 @@ type Vec3 [3]float32
 // vec3Zero is the zero vector
 var vec3Zero = Vec3{0, 0, 0}
 
-// len returns the Euclidean length of a vector.
-func (vec Vec3) len() float64 {
+// Len returns the Euclidean length of a vector.
+func (vec Vec3) Len() float64 {
 	return math.Sqrt(float64(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]))
 }
 
 // UnitVec3 returns vec multiplied by 1/vec.Len(), so its new length is 1. If the vector is empty, it is returned as such.
 func (vec Vec3) UnitVec3() Vec3 {
-	l := vec.len()
+	l := vec.Len()
 	if l == 0 {
 		return vec
 	}
@@ -74,7 +74,7 @@ func (vec Vec3) Dot(o Vec3) float64 {
 // Angle between vec and o in radians, without sign, between 0 and Pi.
 // If vec or o is the origin, this returns 0.
 func (vec Vec3) Angle(o Vec3) float64 {
-	lenProd := vec.len() * o.len()
+	lenProd := vec.Len() * o.Len()
 	if lenProd == 0 {
 		return 0
 	}

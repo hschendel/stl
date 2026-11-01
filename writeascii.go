@@ -47,7 +47,7 @@ func writeTriangleASCII(w io.Writer, t *Triangle) error {
 	if err != nil {
 		return err
 	}
-	for i := 0; i < 3; i++ {
+	for i := range 3 {
 		_, err = w.Write([]byte("\n    vertex "))
 		if err != nil {
 			return err
@@ -66,6 +66,6 @@ func writeTriangleASCII(w io.Writer, t *Triangle) error {
 
 func writePointString(w io.Writer, p *Vec3) error {
 	// %v is the easiest way I know to write floats as compact as possible
-	_, err := w.Write([]byte(fmt.Sprintf("%v %v %v", p[0], p[1], p[2])))
+	_, err := fmt.Fprintf(w, "%v %v %v", p[0], p[1], p[2])
 	return err
 }

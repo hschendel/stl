@@ -13,6 +13,8 @@ type Writer interface {
 
 	// SetTriangleCount can optionally be used to set the triangle count if it is known, so
 	// the underlying implementation can use it to allocate a data structure, or similar.
+	// Please note that this is not called when an ASCII file is read. So if processing ASCII files, you must
+	// allocate dynamically when AppendTriangle is called.
 	SetTriangleCount(n uint32)
 
 	// AppendTriangle adds a triangle to the solid

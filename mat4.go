@@ -5,7 +5,8 @@ package stl
 // Mat4 represents a 4x4 Matrix of float64 used for 3D transformations.
 // The 4th column can be used for moving the solid on the axes.
 // Accessing matrix elements goes like this:
-//    matrix[row][column]
+//
+//	matrix[row][column]
 type Mat4 [4]Vec4
 
 // Vec4 is used to construct Mat4

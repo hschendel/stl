@@ -162,7 +162,7 @@ func BenchmarkTransform(b *testing.B) {
 	var rotationMatrix Mat4
 	RotationMatrix(Vec3{30, 10, 10}, Vec3{1, 1, 1}, HalfPi/4, &rotationMatrix)
 	b.StartTimer()
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		solid.Transform(&rotationMatrix)
 	}
 }

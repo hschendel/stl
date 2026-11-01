@@ -10,7 +10,7 @@ import (
 	"os"
 )
 
-// ErrIncompleteBinaryHeader is used when reading binary STL files with incomplete header.
+// ErrIncompleteBinaryHeader is used when reading binary STL files with an incomplete header.
 var ErrIncompleteBinaryHeader = errors.New("incomplete STL binary header, 84 bytes expected")
 
 // ErrUnexpectedEOF is used by ReadFile and ReadAll to signify an incomplete file.
@@ -18,7 +18,7 @@ var ErrUnexpectedEOF = errors.New("unexpected end of file")
 
 // ReadFile reads the contents of a file into a new Solid object. The file
 // can be either in STL ASCII format, beginning with "solid ", or in
-// STL binary format, beginning with a 84 byte header. Shorthand for os.Open and ReadAll
+// STL binary format, beginning with an 84-byte header. Shorthand for os.Open and ReadAll
 func ReadFile(filename string) (solid *Solid, err error) {
 	var s Solid
 	err = CopyFile(filename, &s)
@@ -30,7 +30,7 @@ func ReadFile(filename string) (solid *Solid, err error) {
 
 // ReadAll reads the contents of a file into a new Solid object. The file
 // can be either in STL ASCII format, beginning with "solid ", or in
-// STL binary format, beginning with a 84 byte header. Because of this,
+// STL binary format, beginning with an 84-byte header. Because of this,
 // the file pointer has to be at the beginning of the file.
 func ReadAll(r io.ReadSeeker) (solid *Solid, err error) {
 	var s Solid
@@ -97,7 +97,7 @@ func isBinaryFile(r io.ReadSeeker) (isBinary bool, err error) {
 	return
 }
 
-// WriteFile creates file with name filename and write contents of this Solid.
+// WriteFile creates a file named after filename and writes contents of this Solid.
 // Shorthand for os.Create and Solid.WriteAll
 func (s *Solid) WriteFile(filename string) (err error) {
 	file, err := os.Create(filename)

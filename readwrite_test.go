@@ -3,6 +3,7 @@ package stl
 // Tests for reading and writing STL files.
 
 import (
+	"io"
 	"os"
 	"strconv"
 	"testing"
@@ -113,7 +114,7 @@ func TestReadAll_Binary(t *testing.T) {
 	if openErr != nil {
 		t.Fatal(openErr)
 	}
-	defer file.Close()
+	defer mustClose(t, file)
 
 	solid, err := ReadAll(file)
 	if err != nil {
@@ -135,7 +136,7 @@ func TestWriteFile_Ascii(t *testing.T) {
 	if tmpErr != nil {
 		t.Fatal(tmpErr.Error())
 	}
-	defer os.RemoveAll(tmpDirName)
+	defer mustRemoveAll(t, tmpDirName)
 
 	tmpFileName := tmpDirName + string(os.PathSeparator) + "test_out_ascii.stl"
 	testSolid := makeTestSolid()
@@ -166,7 +167,7 @@ func BenchmarkWriteSmallFile_ASCII(b *testing.B) {
 	if tmpErr != nil {
 		b.Fatal(tmpErr.Error())
 	}
-	defer os.RemoveAll(tmpDirName)
+	defer mustRemoveAll(b, tmpDirName)
 
 	testSolid := makeTestSolid()
 	testSolid.IsAscii = true
@@ -187,7 +188,7 @@ func TestWriteFile_Binary(t *testing.T) {
 	if tmpErr != nil {
 		t.Fatal(tmpErr.Error())
 	}
-	defer os.RemoveAll(tmpDirName)
+	defer mustRemoveAll(t, tmpDirName)
 
 	tmpFileName := tmpDirName + string(os.PathSeparator) + "test_out_binary.stl"
 	testSolid := makeTestSolid()
@@ -218,7 +219,7 @@ func BenchmarkWriteSmallFile_Binary(b *testing.B) {
 	if tmpErr != nil {
 		b.Fatal(tmpErr.Error())
 	}
-	defer os.RemoveAll(tmpDirName)
+	defer mustRemoveAll(b, tmpDirName)
 
 	testSolid := makeTestSolid()
 	testSolid.IsAscii = false
@@ -241,7 +242,7 @@ func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 	if tmpErr != nil {
 		b.Fatal(tmpErr)
 	}
-	defer os.RemoveAll(tmpDirName)
+	defer mustRemoveAll(b, tmpDirName)
 
 	testSolid, readErr := ReadFile(testFilenameComplexBinary)
 	if readErr != nil {
@@ -259,5 +260,19 @@ func BenchmarkWriteMediumFile_Binary(b *testing.B) {
 		if err != nil {
 			b.Fatal("Error in WriteFile: " + err.Error())
 		}
+	}
+}
+
+func mustRemoveAll(t testing.TB, name string) {
+	t.Helper()
+	if err := os.RemoveAll(name); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func mustClose(t testing.TB, c io.Closer) {
+	t.Helper()
+	if err := c.Close(); err != nil {
+		t.Fatal(err)
 	}
 }
